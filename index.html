@@ -3,80 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>リンクメニュー</title>
+  <title>ゲーム</title>
   <style>
+    :root {
+      --bg: #141210;
+      --panel: #1d1a17;
+      --line: rgba(201, 169, 110, 0.35);
+      --gold: #c9a96e;
+      --text: #e8e2d6;
+      --muted: #8f877a;
+    }
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      padding: 40px 20px;
-      background-color: #f4f6f9;
-      font-family: sans-serif;
-      color: #333;
+      min-height: 100vh;
+      padding: 60px 20px 80px;
+      color: var(--text);
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+      letter-spacing: 0.06em;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.10), transparent 60%),
+        radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.8), transparent 60%),
+        var(--bg);
+      position: relative;
+    }
+    /* うっすら紙・革のようなザラつき */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .guitar {
+      width: 90px;
+      height: auto;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.6));
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
     }
     h1 {
-      text-align: center;
-      font-size: 1.4rem;
-      margin-bottom: 30px;
+      margin: 0;
+      font-weight: normal;
+      font-size: 1.9rem;
+      letter-spacing: 0.4em;
+      padding-left: 0.4em; /* letter-spacing分のズレ補正 */
     }
+    .rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+      color: var(--gold);
+    }
+    .rule::before, .rule::after {
+      content: "";
+      width: 70px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .rule span { font-size: 0.6rem; }
+
+    /* ===== ボタン ===== */
     .grid {
-      max-width: 600px;
+      max-width: 640px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 20px;
     }
     .card {
+      position: relative;
       display: block;
-      padding: 24px 16px;
-      background: #fff;
-      border-radius: 8px;
-      text-decoration: none;
-      color: #333;
+      padding: 34px 20px 30px;
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-      transition: 0.2s;
+      text-decoration: none;
+      color: var(--text);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25)),
+        var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.05) inset,
+        0 12px 24px rgba(0,0,0,0.45);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      overflow: hidden;
+    }
+    /* 内側の細い額縁 */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(201,169,110,0.12);
+      pointer-events: none;
+      transition: border-color 0.35s ease;
+    }
+    /* ホバー時に光がすっと流れる */
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(201,169,110,0.12), transparent);
+      transition: left 0.7s ease;
+      pointer-events: none;
     }
     .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-      color: #0066cc;
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.06) inset,
+        0 18px 34px rgba(0,0,0,0.6),
+        0 0 24px rgba(201,169,110,0.12);
+    }
+    .card:hover::before { border-color: rgba(201,169,110,0.35); }
+    .card:hover::after { left: 140%; }
+
+    .card-num {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin-bottom: 14px;
     }
     .card-title {
-      font-weight: bold;
-      font-size: 1.1rem;
-      margin-bottom: 6px;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
     }
     .card-desc {
-      font-size: 0.85rem;
-      color: #666;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.4em;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
-  <h1>リンクメニュー</h1>
+  <header>
+    <!-- アコースティックギター -->
+    <svg class="guitar" viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="wood" cx="45%" cy="40%" r="70%">
+          <stop offset="0%" stop-color="#d9a35f"/>
+          <stop offset="55%" stop-color="#a8662c"/>
+          <stop offset="100%" stop-color="#4a2510"/>
+        </radialGradient>
+        <linearGradient id="neck" x1="0" x2="1">
+          <stop offset="0%" stop-color="#2a1709"/>
+          <stop offset="50%" stop-color="#4a2a12"/>
+          <stop offset="100%" stop-color="#2a1709"/>
+        </linearGradient>
+      </defs>
+      <!-- ヘッド -->
+      <path d="M42 4 h16 l3 30 h-22 z" fill="#1e1006"/>
+      <g fill="#c9a96e">
+        <circle cx="38" cy="12" r="2.2"/><circle cx="38" cy="20" r="2.2"/><circle cx="38" cy="28" r="2.2"/>
+        <circle cx="62" cy="12" r="2.2"/><circle cx="62" cy="20" r="2.2"/><circle cx="62" cy="28" r="2.2"/>
+      </g>
+      <!-- ネック -->
+      <rect x="44" y="34" width="12" height="100" fill="url(#neck)"/>
+      <g stroke="#c9a96e" stroke-width="0.7" opacity="0.7">
+        <line x1="44" y1="46" x2="56" y2="46"/><line x1="44" y1="58" x2="56" y2="58"/>
+        <line x1="44" y1="69" x2="56" y2="69"/><line x1="44" y1="79" x2="56" y2="79"/>
+        <line x1="44" y1="88" x2="56" y2="88"/><line x1="44" y1="96" x2="56" y2="96"/>
+        <line x1="44" y1="103" x2="56" y2="103"/><line x1="44" y1="110" x2="56" y2="110"/>
+      </g>
+      <!-- ボディ -->
+      <path d="M50 120
+               C 28 120, 22 132, 26 148
+               C 29 158, 24 162, 16 172
+               C 4 188, 6 222, 26 238
+               C 38 248, 62 248, 74 238
+               C 94 222, 96 188, 84 172
+               C 76 162, 71 158, 74 148
+               C 78 132, 72 120, 50 120 Z"
+            fill="url(#wood)" stroke="#2a1306" stroke-width="2"/>
+      <!-- サウンドホール -->
+      <circle cx="50" cy="172" r="13" fill="#140a04"/>
+      <circle cx="50" cy="172" r="16" fill="none" stroke="#c9a96e" stroke-width="1" opacity="0.6"/>
+      <!-- ブリッジ -->
+      <rect x="36" y="206" width="28" height="6" rx="2" fill="#1e1006"/>
+      <!-- 弦 -->
+      <g stroke="#e8e2d6" stroke-width="0.4" opacity="0.85">
+        <line x1="46" y1="34" x2="46" y2="208"/><line x1="47.6" y1="34" x2="47.6" y2="208"/>
+        <line x1="49.2" y1="34" x2="49.2" y2="208"/><line x1="50.8" y1="34" x2="50.8" y2="208"/>
+        <line x1="52.4" y1="34" x2="52.4" y2="208"/><line x1="54" y1="34" x2="54" y2="208"/>
+      </g>
+    </svg>
+
+    <p class="eyebrow">GAME SELECT</p>
+    <h1>ゲーム</h1>
+    <div class="rule"><span>◆</span></div>
+  </header>
 
   <div class="grid">
-    <!-- 👇 hrefの中身を実際のファイル名（またはURL）に合わせる -->
-    <a class="card" href="イルカは羽ばたき空を超えその先を見た2.html">
-      <div class="card-title">イルカは羽ばたき空を超えその先を見た2</div>
-      <div class="card-desc">イルカは羽ばたき魚を食べた</div>
+    <!-- 👇 href にゲームのファイル名、card-title にゲーム名を入れてね -->
+    <a class="card" href="#">
+      <div class="card-num">No. 01</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
     </a>
 
-    <a class="card" href="サルは羽ばたき空を飛ぶ.html">
-      <div class="card-title">サルは羽ばたき空を飛ぶ</div>
-      <div class="card-desc">サルはバナナを食べてよだれがたれた</div>
+    <a class="card" href="#">
+      <div class="card-num">No. 02</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
     </a>
 
-    <a class="card" href="https://example.com/3">
-      <div class="card-title">サイト C</div>
-      <div class="card-desc">サイトCの説明文</div>
+    <a class="card" href="#">
+      <div class="card-num">No. 03</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
     </a>
 
-    <a class="card" href="https://example.com/4" target="_blank">
-      <div class="card-title">サイト D</div>
-      <div class="card-desc">新しいタブで開きます</div>
+    <a class="card" href="#">
+      <div class="card-num">No. 04</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
     </a>
   </div>
+
+  <footer>— SELECT A GAME —</footer>
 
 </body>
 </html>
