@@ -1,1020 +1,258 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<!-- iOS Safariでホーム画面追加時にアドレスバー等を非表示 -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ギター演奏">
-<meta name="mobile-web-app-capable" content="yes">
-<title>スマホギター演奏アプリ</title>
-<style>
-  :root{
-    --bg-color:#0f172a; --card-bg:#1e293b; --text-color:#f8fafc; --text-muted:#94a3b8;
-    --accent-primary:#6366f1; --accent-hover:#4f46e5; --danger:#ef4444; --success:#22c55e;
-    --amber:#f59e0b; --border-color:#334155; --radius:12px; --string-height:90px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
-  html,body{background:var(--bg-color);color:var(--text-color);position:fixed;inset:0;width:100%;height:100%;overflow:hidden;touch-action:none}
-  .app-container{width:100%;height:100%;background:var(--card-bg);display:flex;flex-direction:column;overflow:hidden}
-  .play-main{display:flex;flex:1;gap:.6rem;padding:.4rem;padding-left:max(.8rem,env(safe-area-inset-left));padding-right:max(.4rem,env(safe-area-inset-right));height:100%;overflow:hidden}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゲーム</title>
+  <style>
+    :root {
+      --bg: #141210;
+      --panel: #1d1a17;
+      --line: rgba(201, 169, 110, 0.35);
+      --gold: #c9a96e;
+      --text: #e8e2d6;
+      --muted: #8f877a;
+    }
+    * { box-sizing: border-box; }
 
-  /* ---- 左サイドバー ---- */
-  .left-sidebar{width:180px;display:flex;flex-direction:column;gap:.3rem;flex-shrink:0;height:100%;overflow:hidden}
-  .btn-group{display:flex;gap:.3rem;flex-shrink:0}
-  .btn{background:var(--accent-primary);color:#fff;border:none;padding:.35rem;font-size:.75rem;font-weight:600;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;width:100%;flex-shrink:0;transition:background .2s,transform .1s}
-  .btn:active{transform:scale(.97)}
-  .btn-secondary{background:var(--border-color);color:var(--text-color)}
-  .btn-success{background:var(--success)}
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 60px 20px 80px;
+      color: var(--text);
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+      letter-spacing: 0.06em;
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.10), transparent 60%),
+        radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.8), transparent 60%),
+        var(--bg);
+      position: relative;
+    }
+    /* うっすら紙・革のようなザラつき */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.08;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
 
-  .chord-sidebar{flex:1;display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,1fr);gap:.25rem;min-height:0}
-  .chord-btn{background:var(--bg-color);border:2px solid var(--border-color);border-radius:6px;color:var(--text-color);font-size:.85rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;min-height:0;line-height:1.05}
-  .chord-btn .sub{font-size:.58rem;color:var(--amber);font-weight:600}
-  .chord-btn.active{background:var(--accent-primary);border-color:#818cf8;box-shadow:0 0 8px rgba(99,102,241,.5);transform:scale(.96)}
-  .chord-btn.active .sub{color:#fde68a}
-  .chord-btn.empty{background:rgba(15,23,42,.3);border-color:rgba(51,65,85,.4);cursor:default}
+    /* ===== ヘッダー ===== */
+    header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .guitar {
+      width: 90px;
+      height: auto;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.6));
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      margin: 0 0 10px;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    h1 {
+      margin: 0;
+      font-weight: normal;
+      font-size: 1.9rem;
+      letter-spacing: 0.4em;
+      padding-left: 0.4em; /* letter-spacing分のズレ補正 */
+    }
+    .rule {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 18px;
+      color: var(--gold);
+    }
+    .rule::before, .rule::after {
+      content: "";
+      width: 70px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+    }
+    .rule span { font-size: 0.6rem; }
 
-  /* テクニックボタン（押している間だけ有効） */
-  .tech-row,.stroke-row{display:flex;gap:.25rem;flex-shrink:0}
-  .tech-btn{flex:1;height:40px;border-radius:8px;border:2px solid #57534e;background:linear-gradient(180deg,#292524,#1c1917);color:#e7e5e4;font-size:.68rem;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;cursor:pointer;touch-action:none}
-  .tech-btn .ico{font-size:.95rem}
-  .tech-btn.active{border-color:var(--amber);background:linear-gradient(180deg,#b45309,#78350f);box-shadow:0 0 10px rgba(245,158,11,.55);transform:scale(.97)}
-  .stroke-btn{flex:1;height:28px;border-radius:6px;border:1px solid var(--border-color);background:var(--bg-color);color:var(--text-color);font-size:.7rem;font-weight:700;cursor:pointer;touch-action:none}
-  .stroke-btn:active{background:var(--accent-primary)}
-  .capo-row{display:flex;align-items:center;gap:.25rem;flex-shrink:0;background:var(--bg-color);border:1px solid var(--border-color);border-radius:6px;padding:2px}
-  .capo-row button{width:30px;height:24px;border:none;border-radius:4px;background:var(--border-color);color:#fff;font-weight:800;font-size:.9rem;cursor:pointer;touch-action:none}
-  .capo-row .capo-label{flex:1;text-align:center;font-size:.72rem;font-weight:800;letter-spacing:.04em}
-  .capo-row .capo-label b{color:var(--amber);font-size:.85rem}
+    /* ===== ボタン ===== */
+    .grid {
+      max-width: 640px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .card {
+      position: relative;
+      display: block;
+      padding: 34px 20px 30px;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      background:
+        linear-gradient(160deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25)),
+        var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.05) inset,
+        0 12px 24px rgba(0,0,0,0.45);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+      overflow: hidden;
+    }
+    /* 内側の細い額縁 */
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(201,169,110,0.12);
+      pointer-events: none;
+      transition: border-color 0.35s ease;
+    }
+    /* ホバー時に光がすっと流れる */
+    .card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(105deg, transparent, rgba(201,169,110,0.12), transparent);
+      transition: left 0.7s ease;
+      pointer-events: none;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,0.06) inset,
+        0 18px 34px rgba(0,0,0,0.6),
+        0 0 24px rgba(201,169,110,0.12);
+    }
+    .card:hover::before { border-color: rgba(201,169,110,0.35); }
+    .card:hover::after { left: 140%; }
 
-  /* ---- 弦エリア（キャンバスでギター本体を描画） ---- */
-  .strings-container{flex:1;min-width:0;height:100%;position:relative;overflow:hidden;border-radius:10px;border:1px solid #1f140c;background:#2a1a0e;display:flex;flex-direction:column;justify-content:center;touch-action:none;box-shadow:inset 0 0 30px rgba(0,0,0,.6)}
-  #guitar-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
-  .string-row{flex:0 1 var(--string-height);min-height:0;position:relative;display:flex;align-items:center;z-index:1;cursor:pointer}
-  .string-badge{position:absolute;left:5px;z-index:2;background:rgba(10,10,10,.72);border:1px solid rgba(255,255,255,.15);color:#cbd5e1;padding:1px 4px;border-radius:4px;font-size:.62rem;font-weight:700;pointer-events:none;display:flex;gap:3px;backdrop-filter:blur(2px)}
-  .string-badge .note-name{color:#fff}
-  .string-row.muted .string-badge{color:var(--danger);border-color:rgba(239,68,68,.4)}
-  .string-row.muted .string-badge .note-name{color:var(--danger)}
+    .card-num {
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+    .card-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
 
-  /* ---- モーダル ---- */
-  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000;padding:.5rem}
-  .modal-overlay.active{display:flex}
-  .modal-content{background:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius);width:100%;max-width:480px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 25px -5px rgba(0,0,0,.5)}
-  .modal-header{display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;border-bottom:1px solid var(--border-color)}
-  .modal-header h3{font-size:.95rem}
-  .modal-close-btn{background:transparent;border:none;color:var(--text-muted);font-size:1.1rem;cursor:pointer;padding:.2rem .4rem;border-radius:4px}
-  .modal-body{padding:.9rem;overflow-y:auto;font-size:.8rem;display:flex;flex-direction:column;gap:.7rem;-webkit-overflow-scrolling:touch;touch-action:pan-y}
-  .form-group{display:flex;flex-direction:column;gap:.25rem}
-  label{font-weight:600;color:var(--text-muted);font-size:.75rem}
-  select,input[type=range]{width:100%;padding:.4rem;background:var(--bg-color);border:1px solid var(--border-color);color:var(--text-color);border-radius:6px;font-size:.8rem}
-  .chord-config-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.3rem}
-  .chord-config-slot{background:var(--bg-color);border:1px solid var(--border-color);padding:.25rem;border-radius:6px;text-align:center}
-  .chord-config-slot label{font-size:.65rem;display:block}
-  .chord-config-slot select{padding:.2rem;font-size:.75rem}
-  .help-section{background:var(--bg-color);border:1px solid var(--border-color);border-radius:6px;padding:.6rem}
-  .help-section h4{color:#818cf8;font-size:.8rem;margin-bottom:.3rem}
-  .help-section ul{padding-left:1.2rem}
-  .help-section li{margin-bottom:.25rem}
-  .warning-text{color:#f87171}
-  #toast-notification{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--success);color:#fff;padding:.5rem 1rem;border-radius:8px;font-size:.85rem;font-weight:700;transition:transform .3s;z-index:2000;pointer-events:none}
-  #toast-notification.show{transform:translateX(-50%) translateY(0)}
-</style>
+    footer {
+      text-align: center;
+      margin-top: 60px;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.4em;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    @media (max-width: 480px) {
+      .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="app-container">
-  <div class="play-main">
-    <div class="left-sidebar">
-      <div class="btn-group">
-        <button id="open-settings" class="btn btn-secondary">⚙️ 設定</button>
-        <button id="open-help" class="btn btn-secondary">❓ ヘルプ</button>
-      </div>
-      <div class="chord-sidebar" id="chord-sidebar"></div>
-      <div class="tech-row">
-        <div class="tech-btn" data-tech="brush"><span class="ico">✋</span>ブラッシング</div>
-        <div class="tech-btn" data-tech="palm"><span class="ico">🤚</span>パームミュート</div>
-      </div>
-      <div class="stroke-row">
-        <button class="stroke-btn" data-dir="down">⬇ ダウン</button>
-        <button class="stroke-btn" data-dir="up">⬆ アップ</button>
-      </div>
-      <div class="capo-row">
-        <button id="capo-down">−</button>
-        <div class="capo-label">CAPO <b id="capo-val">0</b></div>
-        <button id="capo-up">＋</button>
-      </div>
-    </div>
+  <header>
+    <!-- アコースティックギター -->
+    <svg class="guitar" viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="wood" cx="45%" cy="40%" r="70%">
+          <stop offset="0%" stop-color="#d9a35f"/>
+          <stop offset="55%" stop-color="#a8662c"/>
+          <stop offset="100%" stop-color="#4a2510"/>
+        </radialGradient>
+        <linearGradient id="neck" x1="0" x2="1">
+          <stop offset="0%" stop-color="#2a1709"/>
+          <stop offset="50%" stop-color="#4a2a12"/>
+          <stop offset="100%" stop-color="#2a1709"/>
+        </linearGradient>
+      </defs>
+      <!-- ヘッド -->
+      <path d="M42 4 h16 l3 30 h-22 z" fill="#1e1006"/>
+      <g fill="#c9a96e">
+        <circle cx="38" cy="12" r="2.2"/><circle cx="38" cy="20" r="2.2"/><circle cx="38" cy="28" r="2.2"/>
+        <circle cx="62" cy="12" r="2.2"/><circle cx="62" cy="20" r="2.2"/><circle cx="62" cy="28" r="2.2"/>
+      </g>
+      <!-- ネック -->
+      <rect x="44" y="34" width="12" height="100" fill="url(#neck)"/>
+      <g stroke="#c9a96e" stroke-width="0.7" opacity="0.7">
+        <line x1="44" y1="46" x2="56" y2="46"/><line x1="44" y1="58" x2="56" y2="58"/>
+        <line x1="44" y1="69" x2="56" y2="69"/><line x1="44" y1="79" x2="56" y2="79"/>
+        <line x1="44" y1="88" x2="56" y2="88"/><line x1="44" y1="96" x2="56" y2="96"/>
+        <line x1="44" y1="103" x2="56" y2="103"/><line x1="44" y1="110" x2="56" y2="110"/>
+      </g>
+      <!-- ボディ -->
+      <path d="M50 120
+               C 28 120, 22 132, 26 148
+               C 29 158, 24 162, 16 172
+               C 4 188, 6 222, 26 238
+               C 38 248, 62 248, 74 238
+               C 94 222, 96 188, 84 172
+               C 76 162, 71 158, 74 148
+               C 78 132, 72 120, 50 120 Z"
+            fill="url(#wood)" stroke="#2a1306" stroke-width="2"/>
+      <!-- サウンドホール -->
+      <circle cx="50" cy="172" r="13" fill="#140a04"/>
+      <circle cx="50" cy="172" r="16" fill="none" stroke="#c9a96e" stroke-width="1" opacity="0.6"/>
+      <!-- ブリッジ -->
+      <rect x="36" y="206" width="28" height="6" rx="2" fill="#1e1006"/>
+      <!-- 弦 -->
+      <g stroke="#e8e2d6" stroke-width="0.4" opacity="0.85">
+        <line x1="46" y1="34" x2="46" y2="208"/><line x1="47.6" y1="34" x2="47.6" y2="208"/>
+        <line x1="49.2" y1="34" x2="49.2" y2="208"/><line x1="50.8" y1="34" x2="50.8" y2="208"/>
+        <line x1="52.4" y1="34" x2="52.4" y2="208"/><line x1="54" y1="34" x2="54" y2="208"/>
+      </g>
+    </svg>
 
-    <div class="strings-container" id="strings-container">
-      <canvas id="guitar-canvas"></canvas>
-      <div class="string-row" data-string="1"><div class="string-badge"><span>1</span><span class="note-name" id="note-1">E</span></div></div>
-      <div class="string-row" data-string="2"><div class="string-badge"><span>2</span><span class="note-name" id="note-2">B</span></div></div>
-      <div class="string-row" data-string="3"><div class="string-badge"><span>3</span><span class="note-name" id="note-3">G</span></div></div>
-      <div class="string-row" data-string="4"><div class="string-badge"><span>4</span><span class="note-name" id="note-4">D</span></div></div>
-      <div class="string-row" data-string="5"><div class="string-badge"><span>5</span><span class="note-name" id="note-5">A</span></div></div>
-      <div class="string-row" data-string="6"><div class="string-badge"><span>6</span><span class="note-name" id="note-6">E</span></div></div>
-    </div>
+    <p class="eyebrow">GAME SELECT</p>
+    <h1>ゲーム</h1>
+    <div class="rule"><span>◆</span></div>
+  </header>
+
+  <div class="grid">
+    <!-- 👇 href にゲームのファイル名、card-title にゲーム名を入れてね -->
+    <a class="card" href="#">
+      <div class="card-num">No. 01</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-num">No. 02</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-num">No. 03</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
+    </a>
+
+    <a class="card" href="#">
+      <div class="card-num">No. 04</div>
+      <div class="card-title">ゲーム名</div>
+      <div class="card-desc">説明文</div>
+    </a>
   </div>
-</div>
 
-<!-- 設定モーダル -->
-<div id="settings-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>⚙️ 楽器・エフェクター・レイアウト設定</h3>
-      <button class="modal-close-btn" data-modal="settings-modal">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-group"><button id="settings-help-btn" class="btn btn-secondary">❓ アプリの使い方・注意点</button></div>
-      <div class="form-group">
-        <label for="instrument-select">音色の種類（見た目も変わるよ）</label>
-        <select id="instrument-select">
-          <option value="acoustic-guitar">フォークギター (Acoustic Guitar)</option>
-          <option value="classic-guitar">クラシックギター (Classic Guitar)</option>
-          <option value="electric-guitar">エレキギター・クリーン (Clean Electric)</option>
-          <option value="distortion-guitar">エレキギター・ディストーション (Rock Distortion)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="effect-select">エフェクター</label>
-        <select id="effect-select">
-          <option value="none">なし (Bypass)</option>
-          <option value="chorus">コーラス (Chorus)</option>
-          <option value="delay">ディレイ (Delay)</option>
-          <option value="reverb">リバーブ (Reverb / Hall)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="capo-select">カポタスト</label>
-        <select id="capo-select"></select>
-      </div>
-      <div class="form-group">
-        <label for="tech-mode-select">ブラッシング／パームミュートボタンの動作</label>
-        <select id="tech-mode-select">
-          <option value="hold">押している間だけ（本物っぽい）</option>
-          <option value="toggle">タップでON/OFF切り替え</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="rhythm-pattern-select">リズムの種類</label>
-        <select id="rhythm-pattern-select">
-          <option value="rock-8beat">8ビートロック (8-Beat Rock)</option>
-          <option value="pop-16beat">16ビートポップス (16-Beat Pop)</option>
-          <option value="jazz-4beat">4ビートジャズ (4-Beat Jazz / Swing)</option>
-          <option value="bossanova">ボサノバ (Bossa Nova)</option>
-          <option value="disco">ディスコ (Disco / 4-on-the-floor)</option>
-          <option value="standard">基本ロック (Standard)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>ドラム自動リズム伴奏</label>
-        <button id="rhythm-toggle-btn" class="btn">リズム再生 (START)</button>
-      </div>
-      <div class="form-group">
-        <label>テンポ (BPM): <span id="bpm-val">120</span></label>
-        <input type="range" id="tempo-input" min="60" max="180" value="120">
-      </div>
-      <div class="form-group">
-        <label>弦の幅 (現在の向き): <span id="string-spacing-val">90</span>px</label>
-        <input type="range" id="string-spacing-input" min="40" max="120" value="90">
-        <small style="color:var(--text-muted);font-size:.65rem">※ 縦向き・横向きでそれぞれ別に保存されます</small>
-      </div>
-      <div class="form-group">
-        <label>コードボタンの割り当て変更 (2列6行)</label>
-        <div class="chord-config-grid" id="chord-config-grid"></div>
-      </div>
-      <div class="form-group" style="margin-top:.5rem">
-        <button id="save-settings-btn" class="btn btn-success">💾 設定を保存</button>
-      </div>
-    </div>
-  </div>
-</div>
+  <footer>— SELECT A GAME —</footer>
 
-<!-- ヘルプモーダル -->
-<div id="help-modal" class="modal-overlay">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>❓ アプリの使い方・使用上の注意点</h3>
-      <button class="modal-close-btn" data-modal="help-modal">&times;</button>
-    </div>
-    <div class="modal-body" style="line-height:1.6;font-size:.85rem">
-      <div class="help-section">
-        <h4>🎸 演奏方法</h4>
-        <ul>
-          <li><strong>コード選択:</strong> 左のコードボタンをタップ。カポ使用中は小さく「実際に鳴るコード」も表示されます。</li>
-          <li><strong>ストローク:</strong> 右の弦を上下になでると演奏。<strong>なでる速さで強弱</strong>が変わります。弦を直接タップすると単音で鳴ります。</li>
-          <li><strong>⬇ ダウン / ⬆ アップ:</strong> ボタン1つでストローク。PCでの演奏や確認に便利です。</li>
-        </ul>
-      </div>
-      <div class="help-section">
-        <h4>✋ テクニック</h4>
-        <ul>
-          <li><strong>ブラッシング:</strong> 押しながらストロークすると左手で弦を押さえた「チャッ」というカッティング音に。押した瞬間に鳴っている音も止まります。</li>
-          <li><strong>パームミュート:</strong> 押しながら弾くと、右手の手のひらでブリッジ付近をミュートした「ズンッ」という詰まった音に。ディストーションで刻むと気持ちいいです。</li>
-          <li>左手の親指でボタンを押しながら右手でストロークするのがおすすめ。設定で「タップで切り替え」にもできます。</li>
-        </ul>
-      </div>
-      <div class="help-section">
-        <h4>🎚️ カポタスト</h4>
-        <ul><li>「−／＋」で0〜9フレットまで半音ずつ移調できます。押さえ方（Cの形など）はそのままで、音だけ高くなります。</li></ul>
-      </div>
-      <div class="help-section">
-        <h4>⚠️ 使用上の注意点</h4>
-        <ul>
-          <li><strong class="warning-text">音量についての注意:</strong> 予期せぬ大きな音が鳴ることがあります。イヤホン使用時は特にご注意ください。</li>
-          <li><strong>音が出ない場合:</strong> 最初に画面をタップするまで音は出ません。マナーモード（サイレント）も解除してください。</li>
-          <li><strong>設定の保存:</strong> 変更は自動で記憶されます。「💾 設定を保存」で確実に保存して閉じます。</li>
-        </ul>
-      </div>
-      <div class="help-section">
-        <h4>📲 iPhone (Safari) で全画面表示にする方法</h4>
-        <p>1. 共有ボタン（<strong>□に↑</strong>）をタップ</p>
-        <p>2.「<strong>ホーム画面に追加</strong>」を選択</p>
-        <p>3. ホーム画面のアイコンから起動すると全画面で演奏できます</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="toast-notification">⚙️ 設定を保存しました</div>
-
-<script>
-/* =========================================================
-   データ
-   ========================================================= */
-const NOTE_NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-function noteMidi(n){const m=/^([A-G]#?)(\d)$/.exec(n);return m?(+m[2]+1)*12+NOTE_NAMES.indexOf(m[1]):null;}
-function midiFreq(m){return 440*Math.pow(2,(m-69)/12);}
-function midiName(m){return NOTE_NAMES[m%12]+(Math.floor(m/12)-1);}
-const OPEN_STRINGS={6:"E2",5:"A2",4:"D3",3:"G3",2:"B3",1:"E4"};
-
-// 並び：6弦→1弦。押さえ方を実際のギターで弾ける形に全面見直し済み
-const X="MUTE";
-const CHORD_VOICINGS={
-  "C":[X,"C3","E3","G3","C4","E4"],      "C#":[X,"C#3","F3","G#3","C#4","F4"],
-  "D":[X,X,"D3","A3","D4","F#4"],        "D#":[X,X,"D#3","A#3","D#4","G4"],
-  "E":["E2","B2","E3","G#3","B3","E4"],  "F":["F2","C3","F3","A3","C4","F4"],
-  "F#":["F#2","C#3","F#3","A#3","C#4","F#4"],"G":["G2","B2","D3","G3","B3","G4"],
-  "G#":["G#2","D#3","G#3","C4","D#4","G#4"],"A":[X,"A2","E3","A3","C#4","E4"],
-  "A#":[X,"A#2","F3","A#3","D4","F4"],   "B":[X,"B2","F#3","B3","D#4","F#4"],
-
-  "Cm":[X,"C3","G3","C4","D#4","G4"],    "C#m":[X,"C#3","G#3","C#4","E4","G#4"],
-  "Dm":[X,X,"D3","A3","D4","F4"],        "D#m":[X,X,"D#3","A#3","D#4","F#4"],
-  "Em":["E2","B2","E3","G3","B3","E4"],  "Fm":["F2","C3","F3","G#3","C4","F4"],
-  "F#m":["F#2","C#3","F#3","A3","C#4","F#4"],"Gm":["G2","D3","G3","A#3","D4","G4"],
-  "G#m":["G#2","D#3","G#3","B3","D#4","G#4"],"Am":[X,"A2","E3","A3","C4","E4"],
-  "A#m":[X,"A#2","F3","A#3","C#4","F4"], "Bm":[X,"B2","F#3","B3","D4","F#4"],
-
-  "C7":[X,"C3","E3","A#3","C4","E4"],    "C#7":[X,"C#3","F3","B3","C#4","F4"],
-  "D7":[X,X,"D3","A3","C4","F#4"],       "D#7":[X,X,"D#3","A#3","C#4","G4"],
-  "E7":["E2","B2","D3","G#3","B3","E4"], "F7":["F2","C3","D#3","A3","C4","F4"],
-  "F#7":["F#2","C#3","E3","A#3","C#4","F#4"],"G7":["G2","B2","D3","G3","B3","F4"],
-  "G#7":["G#2","D#3","F#3","C4","D#4","G#4"],"A7":[X,"A2","E3","G3","C#4","E4"],
-  "A#7":[X,"A#2","F3","G#3","D4","F4"],  "B7":[X,"B2","D#3","A3","B3","F#4"],
-
-  "CM7":[X,"C3","E3","G3","B3","E4"],    "DM7":[X,X,"D3","A3","C#4","F#4"],
-  "EM7":["E2","B2","D#3","G#3","B3","E4"],"FM7":[X,X,"F3","A3","C4","E4"],
-  "GM7":["G2","B2","D3","G3","B3","F#4"],"AM7":[X,"A2","E3","G#3","C#4","E4"],
-
-  "Cm7":[X,"C3","G3","A#3","D#4","G4"],  "Dm7":[X,X,"D3","A3","C4","F4"],
-  "Em7":["E2","B2","D3","G3","B3","E4"], "Fm7":["F2","C3","D#3","G#3","C4","F4"],
-  "Gm7":["G2","D3","F3","A#3","D4","G4"],"Am7":[X,"A2","E3","G3","C4","E4"],
-
-  "Cdim":[X,"C3","F#3","A3","D#4",X],    "Ddim":[X,X,"D3","G#3","B3","F4"],
-  "Edim":["E2","A#2","E3","G3","C#4","E4"],"Fdim":[X,X,"F3","B3","D4","G#4"],
-  "Gdim":[X,X,"G3","C#4","E4","A#4"],    "Adim":[X,"A2","D#3","A3","C4","F#4"],
-
-  "Caug":[X,"C3","E3","G#3","C4","E4"],  "Daug":[X,X,"D3","A#3","D4","F#4"],
-  "Eaug":["E2","C3","E3","G#3","C4","E4"],"Faug":[X,X,"F3","A3","C#4","F4"],
-  "Gaug":["G2","B2","D#3","G3","B3","G4"],"Aaug":[X,"A2","F3","A3","C#4","F4"],
-
-  "C6":[X,"C3","E3","A3","C4","E4"],     "D6":[X,X,"D3","A3","B3","F#4"],
-  "E6":["E2","B2","E3","G#3","C#4","E4"],"F6":[X,X,"F3","A3","D4","F4"],
-  "G6":["G2","B2","D3","G3","B3","E4"],  "A6":[X,"A2","E3","A3","C#4","F#4"],
-
-  "Csus4":[X,"C3","F3","G3","C4","F4"],  "Dsus4":[X,X,"D3","A3","D4","G4"],
-  "Esus4":["E2","B2","E3","A3","B3","E4"],"Gsus4":["G2","C3","D3","G3","C4","G4"],
-  "Asus4":[X,"A2","E3","A3","D4","E4"],
-
-  "Cadd9":[X,"C3","E3","G3","D4","E4"],  "Dadd9":[X,X,"D3","A3","D4","E4"],
-  "Gadd9":["G2","B2","D3","A3","B3","G4"]
-};
-
-// steps:8 → 8分音符×8＝1小節 / steps:16 → 16分音符×16＝1小節（旧版は実質倍速だったのを修正）
-const RHYTHM_PATTERNS={
-  "rock-8beat":{steps:8,pattern:[{k:1,h:1},{h:1},{s:1,h:1},{h:1},{k:1,h:1},{h:1},{s:1,h:1},{h:1}]},
-  "pop-16beat":{steps:16,pattern:[{k:1,h:1},{h:1},{k:1,h:1},{h:1},{s:1,h:1},{h:1},{h:1,o:1},{h:1},{k:1,h:1},{h:1},{k:1,h:1},{h:1},{s:1,h:1},{h:1},{h:1},{h:1}]},
-  "jazz-4beat":{steps:8,swing:.33,pattern:[{r:1,k:1},{},{r:1,f:1},{r:1},{r:1,k:1},{},{r:1,f:1},{r:1}]},
-  "bossanova":{steps:16,pattern:[{k:1,h:1},{h:1},{h:1},{k:1,h:1,x:1},{k:1,h:1},{h:1},{h:1,x:1},{k:1,h:1},{k:1,h:1},{h:1},{h:1,x:1},{k:1,h:1},{k:1,h:1,x:1},{h:1},{h:1},{k:1,h:1}]},
-  "disco":{steps:8,pattern:[{k:1,h:1},{o:1},{k:1,s:1,h:1},{o:1},{k:1,h:1},{o:1},{k:1,s:1,h:1},{o:1}]},
-  "standard":{steps:8,pattern:[{k:1},{},{s:1},{},{k:1},{},{s:1},{}]}
-};
-
-// 楽器プリセット：音（物理モデル＋音作り）と見た目のスタイル
-const PRESETS={
-  "acoustic-guitar":{look:"acoustic",t60:4.2,damp:.32,ex:.8,pick:.13,hp:75,eq:[[105,6,2],[220,3,1.4],[3200,3,.8]],lp:9500,drive:0,out:1,room:.14},
-  "classic-guitar":{look:"classic",t60:3.6,damp:.48,ex:.42,pick:.22,hp:70,eq:[[98,5,2],[260,2,1.2],[2500,-3,.8]],lp:5200,drive:0,out:1.1,room:.17},
-  "electric-guitar":{look:"electric",t60:6.5,damp:.18,ex:.9,pick:.1,hp:90,eq:[[130,1,1],[800,-2,1],[2600,4,1]],lp:5600,drive:2.2,out:.9,room:.06},
-  "distortion-guitar":{look:"metal",t60:7,damp:.2,ex:.95,pick:.09,hp:110,eq:[[120,4,1],[700,-7,.9],[2200,5,1]],lp:4300,drive:35,out:.32,room:.07}
-};
-
-/* =========================================================
-   設定（localStorageが使えない環境でも落ちないように）
-   ========================================================= */
-const LS={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
-let currentChordList;
-try{currentChordList=JSON.parse(LS.get("guitar_chord_list"));}catch(e){}
-if(!Array.isArray(currentChordList)||currentChordList.length!==12)currentChordList=["C","G","D","A","E","F","Am","Em","Dm","Bm","C7","G7"];
-currentChordList=currentChordList.map(c=>(c==="NONE"||CHORD_VOICINGS[c])?c:"NONE");
-let selectedInstrument=PRESETS[LS.get("guitar_instrument")]?LS.get("guitar_instrument"):"acoustic-guitar";
-let selectedEffect=LS.get("guitar_effect")||"none";
-let selectedRhythm=RHYTHM_PATTERNS[LS.get("guitar_rhythm")]?LS.get("guitar_rhythm"):"rock-8beat";
-let currentBpm=parseInt(LS.get("guitar_bpm"))||120;
-let stringSpacingPortrait=parseInt(LS.get("guitar_string_spacing_portrait"))||90;
-let stringSpacingLandscape=parseInt(LS.get("guitar_string_spacing_landscape"))||90;
-let capo=Math.min(9,Math.max(0,parseInt(LS.get("guitar_capo"))||0));
-let techMode=LS.get("guitar_tech_mode")==="toggle"?"toggle":"hold";
-
-let selectedChord=currentChordList.find(c=>c!=="NONE")||"C";
-let tech="normal"; // normal | brush | palm
-
-function isLandscape(){return window.innerWidth>window.innerHeight;}
-function getCurrentStringSpacing(){return isLandscape()?stringSpacingLandscape:stringSpacingPortrait;}
-function setCurrentStringSpacing(v){if(isLandscape())stringSpacingLandscape=v;else stringSpacingPortrait=v;}
-
-/* カポ込みの実音 */
-function soundingNote(stringNum){
-  const v=CHORD_VOICINGS[selectedChord];if(!v)return X;
-  const n=v[6-stringNum];if(n===X)return X;
-  return midiName(noteMidi(n)+capo);
-}
-function soundingChordName(name){
-  if(!capo||name==="NONE")return name;
-  const m=/^([A-G]#?)(.*)$/.exec(name);if(!m)return name;
-  return NOTE_NAMES[(NOTE_NAMES.indexOf(m[1])+capo)%12]+m[2];
-}
-
-/* =========================================================
-   オーディオ
-   ========================================================= */
-let audioCtx=null,master,toneIn,hpF,shaper,eqF=[],lpF,toneOut,revWet,dlyWet,chWet,drumBus,pickNoiseBuf,drumNoiseBuf;
-function initAudio(){
-  if(audioCtx){if(audioCtx.state==="suspended")audioCtx.resume();return;}
-  const AC=window.AudioContext||window.webkitAudioContext;audioCtx=new AC();const c=audioCtx;
-  master=c.createGain();master.gain.value=.85;
-  const comp=c.createDynamicsCompressor();comp.threshold.value=-16;comp.ratio.value=3.5;comp.attack.value=.006;comp.release.value=.2;
-  const lim=c.createDynamicsCompressor();lim.threshold.value=-2;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.08;
-  master.connect(comp);comp.connect(lim);lim.connect(c.destination);
-
-  // ギター音色チェーン：ドライブ→HP→歪み→EQ(胴鳴り/キャビ)→LP
-  toneIn=c.createGain();hpF=c.createBiquadFilter();hpF.type="highpass";
-  shaper=c.createWaveShaper();shaper.oversample="4x";
-  for(let i=0;i<3;i++){const f=c.createBiquadFilter();f.type="peaking";eqF.push(f);}
-  lpF=c.createBiquadFilter();lpF.type="lowpass";lpF.Q.value=.7;toneOut=c.createGain();
-  toneIn.connect(hpF);hpF.connect(shaper);shaper.connect(eqF[0]);eqF[0].connect(eqF[1]);eqF[1].connect(eqF[2]);eqF[2].connect(lpF);lpF.connect(toneOut);
-  toneOut.connect(master);
-
-  // エフェクト（旧版では選択しても音に反映されていなかった）
-  const conv=c.createConvolver();conv.buffer=makeIR(2.3);
-  revWet=c.createGain();toneOut.connect(revWet);revWet.connect(conv);conv.connect(master);
-  const dl=c.createDelay(1);dl.delayTime.value=.33;const fb=c.createGain();fb.gain.value=.36;
-  const dlf=c.createBiquadFilter();dlf.type="lowpass";dlf.frequency.value=3000;
-  dlyWet=c.createGain();toneOut.connect(dlyWet);dlyWet.connect(dl);dl.connect(dlf);dlf.connect(fb);fb.connect(dl);dlf.connect(master);
-  const cd=c.createDelay(.05);cd.delayTime.value=.018;const lfo=c.createOscillator();lfo.frequency.value=.85;
-  const lg=c.createGain();lg.gain.value=.0035;lfo.connect(lg);lg.connect(cd.delayTime);lfo.start();
-  chWet=c.createGain();toneOut.connect(chWet);chWet.connect(cd);cd.connect(master);
-
-  drumBus=c.createGain();drumBus.gain.value=.75;drumBus.connect(master);
-
-  let n=Math.floor(c.sampleRate*.012);pickNoiseBuf=c.createBuffer(1,n,c.sampleRate);
-  let d=pickNoiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(n*.25));
-  n=c.sampleRate;drumNoiseBuf=c.createBuffer(1,n,c.sampleRate);d=drumNoiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
-
-  applyInstrument();applyEffect();
-}
-function makeIR(sec){
-  const c=audioCtx,sr=c.sampleRate,n=Math.floor(sr*sec),b=c.createBuffer(2,n,sr);
-  for(let ch=0;ch<2;ch++){const d=b.getChannelData(ch);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3.2);}
-  return b;
-}
-function distCurve(k){
-  const n=2048,cv=new Float32Array(n);
-  if(k<=0){for(let i=0;i<n;i++)cv[i]=i*2/n-1;return cv;}
-  const t=Math.tanh(k);for(let i=0;i<n;i++){const x=i*2/n-1;cv[i]=Math.tanh(k*x)/t;}return cv;
-}
-function applyInstrument(){
-  if(!audioCtx)return;const p=PRESETS[selectedInstrument],t=audioCtx.currentTime;
-  hpF.frequency.setValueAtTime(p.hp,t);shaper.curve=distCurve(p.drive);
-  toneIn.gain.setValueAtTime(p.drive>0?1+p.drive*.05:1,t);
-  p.eq.forEach((e,i)=>{eqF[i].frequency.setValueAtTime(e[0],t);eqF[i].gain.setValueAtTime(e[1],t);eqF[i].Q.setValueAtTime(e[2],t);});
-  lpF.frequency.setValueAtTime(p.lp,t);toneOut.gain.setValueAtTime(p.out,t);
-  applyEffect();
-}
-function applyEffect(){
-  if(!audioCtx)return;const p=PRESETS[selectedInstrument],t=audioCtx.currentTime;
-  revWet.gain.setTargetAtTime(selectedEffect==="reverb"?.55:p.room,t,.05);
-  dlyWet.gain.setTargetAtTime(selectedEffect==="delay"?.32:0,t,.05);
-  chWet.gain.setTargetAtTime(selectedEffect==="chorus"?.6:0,t,.05);
-}
-
-/* ---------- Karplus-Strong 物理モデル ---------- */
-const ksCache=new Map();
-function getKS(freq,mode){
-  if(ksCache.size>400)ksCache.clear();
-  const key=selectedInstrument+"|"+freq.toFixed(2)+"|"+mode;
-  let arr=ksCache.get(key);if(!arr){arr=[];ksCache.set(key,arr);}
-  if(arr.length<3){const b=makeKS(freq,PRESETS[selectedInstrument],mode);arr.push(b);return b;}
-  return arr[(Math.random()*arr.length)|0];
-}
-function makeKS(freq,p,mode){
-  const sr=audioCtx.sampleRate;
-  let t60,d,ex,pick,dur;
-  if(mode==="palm"){t60=(p.drive>10?.38:.28)*Math.pow(110/freq,.3);d=.55;ex=p.ex*.7;pick=p.pick;dur=t60*1.1;}
-  else if(mode==="brush"){t60=.035;d=.3;ex=.95;pick=.1;dur=.09;}
-  else if(mode==="dead"){t60=.07;d=.5;ex=.22;pick=p.pick;dur=.16;}
-  else{t60=Math.min(9,p.t60*Math.pow(110/freq,.45));d=p.damp;ex=p.ex;pick=p.pick;dur=Math.min(t60*1.05,6);}
-  const N=Math.floor(sr*dur),out=new Float32Array(N),period=sr/freq;
-  let L=Math.floor(period-d),D=period-L-d;if(D<.3){L-=1;D+=1;}
-  const C=(1-D)/(1+D),line=new Float32Array(L);
-  let lpv=0;for(let i=0;i<L;i++){lpv+=((Math.random()*2-1)-lpv)*ex;line[i]=lpv;}
-  const pp=Math.max(1,Math.round(pick*L)),src=line.slice();
-  for(let i=0;i<L;i++)line[i]=src[i]-src[(i-pp+L)%L];
-  let mean=0;for(let i=0;i<L;i++)mean+=line[i];mean/=L;
-  let mx=0;for(let i=0;i<L;i++){line[i]-=mean;mx=Math.max(mx,Math.abs(line[i]));}
-  if(mx>0)for(let i=0;i<L;i++)line[i]*=.9/mx;
-  const g=Math.pow(.001,1/(t60*freq));
-  let idx=0,prev=0,apX=0,apY=0;
-  for(let n=0;n<N;n++){
-    const y=line[idx];out[n]=y;
-    const f=(1-d)*y+d*prev;prev=y;
-    const a=C*f+apX-C*apY;apX=f;apY=a;
-    line[idx]=g*a;if(++idx>=L)idx=0;
-  }
-  const fade=Math.min(N,Math.floor(sr*.03));for(let i=0;i<fade;i++)out[N-1-i]*=i/fade;
-  const b=audioCtx.createBuffer(1,N,sr);b.getChannelData(0).set(out);return b;
-}
-
-const voices={};
-const STR_VOL={1:.78,2:.82,3:.88,4:.94,5:1,6:1};
-function killVoice(s,when,tc){
-  const v=voices[s];if(!v)return;
-  v.g.gain.cancelScheduledValues(when);v.g.gain.setTargetAtTime(0,when,tc);
-  try{v.src.stop(when+tc*8+.02);}catch(e){}
-  delete voices[s];
-}
-function dampAll(tc){if(!audioCtx)return;const t=audioCtx.currentTime;for(const s in voices)killVoice(s,t,tc);for(let s=1;s<=6;s++)vis[s].tau=Math.min(vis[s].tau,.06);}
-
-// mode: normal | palm | brush | dead（×の弦）
-function playString(s,note,vel,when,mode){
-  const c=audioCtx,p=PRESETS[selectedInstrument];
-  const base=note===X?noteMidi(OPEN_STRINGS[s])+(mode==="brush"?capo:0):noteMidi(note);
-  const freq=midiFreq(base);
-  killVoice(s,when,.008);
-  const src=c.createBufferSource();src.buffer=getKS(freq,mode);
-  src.playbackRate.value=1+(Math.random()-.5)*.0016;
-  const f=c.createBiquadFilter();f.type="lowpass";f.Q.value=.5;
-  let gain;
-  if(mode==="palm"){f.frequency.value=(p.drive>10?900:500)+vel*(p.drive>10?1800:1500);gain=(.45+.6*vel)*1.2;}
-  else if(mode==="brush"){f.frequency.value=3200;gain=.45+.5*vel;}
-  else if(mode==="dead"){f.frequency.value=900;gain=.55;}
-  else{f.frequency.value=1400+vel*vel*9500;gain=.3+.7*vel;}
-  const g=c.createGain();g.gain.value=gain*STR_VOL[s];
-  src.connect(f);f.connect(g);
-  if(c.createStereoPanner){const pn=c.createStereoPanner();pn.pan.value=(3.5-s)*.07;g.connect(pn);pn.connect(toneIn);}else g.connect(toneIn);
-  src.start(when);
-  voices[s]={src,g,note};
-  src.onended=()=>{if(voices[s]&&voices[s].src===src)delete voices[s];};
-
-  // ピックのアタック音／ブラッシングの「チャッ」
-  const ns=c.createBufferSource();ns.buffer=pickNoiseBuf;
-  const nf=c.createBiquadFilter();const ng=c.createGain();
-  if(mode==="brush"){nf.type="bandpass";nf.frequency.value=2200;nf.Q.value=.7;ng.gain.value=.22*vel;}
-  else{nf.type="highpass";nf.frequency.value=2500;ng.gain.value=.05*vel*(selectedInstrument==="classic-guitar"?.3:1);}
-  ns.connect(nf);nf.connect(ng);ng.connect(toneIn);ns.start(when);
-}
-
-/* =========================================================
-   演奏ロジック
-   ========================================================= */
-const rowsEl={};document.querySelectorAll(".string-row").forEach(r=>rowsEl[r.dataset.string]=r);
-
-function pluck(s,vel,when){
-  if(selectedChord==="NONE")return;
-  initAudio();if(when===undefined)when=audioCtx.currentTime;
-  const note=soundingNote(s);
-  let mode;
-  if(tech==="brush")mode="brush";
-  else if(note===X)mode="dead";
-  else if(tech==="palm")mode="palm";
-  else mode="normal";
-  playString(s,note,vel,when,mode);
-  const delay=Math.max(0,(when-audioCtx.currentTime)*1000);
-  setTimeout(()=>excite(s,vel,mode),delay);
-}
-function strum(dir,vel=.8){
-  if(selectedChord==="NONE")return;
-  initAudio();const t=audioCtx.currentTime;
-  const order=dir==="down"?[6,5,4,3,2,1]:[1,2,3,4,5,6];
-  order.forEach((s,i)=>{
-    if(dir==="up"&&soundingNote(s)===X&&tech!=="brush")return;
-    pluck(s,vel*(dir==="up"?.85:1),t+i*.013+Math.random()*.004);
-  });
-}
-
-function initStringInteractions(){
-  const box=document.getElementById("strings-container");
-  const ptrs=new Map();
-  const centers=()=>{const out=[];for(let s=1;s<=6;s++){const r=rowsEl[s].getBoundingClientRect();out.push([s,(r.top+r.bottom)/2,r.top,r.bottom]);}return out;};
-  box.addEventListener("pointerdown",e=>{
-    e.preventDefault();initAudio();try{box.setPointerCapture(e.pointerId);}catch(_){}
-    const y=e.clientY,t=performance.now();let hit=null;
-    for(const [s,,top,bot] of centers())if(y>=top&&y<=bot)hit=s;
-    if(hit)pluck(hit,.55);
-    ptrs.set(e.pointerId,{y,t,last:hit,lt:t});
-  });
-  // 弦の中心線を指が「横切った瞬間」に発音（旧版の連打バグ修正）
-  box.addEventListener("pointermove",e=>{
-    const p=ptrs.get(e.pointerId);if(!p)return;e.preventDefault();
-    const y=e.clientY,t=performance.now(),dy=y-p.y,dt=Math.max(1,t-p.t);
-    if(dy===0)return;
-    let vel=Math.min(1,Math.max(.18,.2+Math.abs(dy)/dt*.33));
-    if(dy<0)vel*=.85;
-    const now=audioCtx.currentTime;
-    for(const [s,cy] of centers()){
-      if((p.y<cy&&y>=cy)||(p.y>cy&&y<=cy)){
-        if(s===p.last&&t-p.lt<130)continue;
-        pluck(s,vel,now+((cy-p.y)/dy)*dt/1000);
-        p.last=s;p.lt=t;
-      }
-    }
-    p.y=y;p.t=t;
-  });
-  const end=e=>ptrs.delete(e.pointerId);
-  box.addEventListener("pointerup",end);box.addEventListener("pointercancel",end);
-}
-
-/* ---------- テクニックボタン ---------- */
-function setTech(t){
-  if(tech===t)return;tech=t;
-  document.querySelectorAll(".tech-btn").forEach(b=>b.classList.toggle("active",b.dataset.tech===t));
-  if(t==="brush")dampAll(.008);       // 左手が弦に触れて音が止まる
-  else if(t==="palm")dampAll(.04);    // 手のひらが乗って余韻が詰まる
-  requestDraw();
-}
-function initTechButtons(){
-  const held=new Map();
-  document.querySelectorAll(".tech-btn").forEach(btn=>{
-    btn.addEventListener("pointerdown",e=>{
-      e.preventDefault();initAudio();
-      const t=btn.dataset.tech;
-      if(techMode==="toggle"){setTech(tech===t?"normal":t);return;}
-      held.set(e.pointerId,t);setTech(t);
-    });
-  });
-  const release=e=>{
-    if(!held.has(e.pointerId))return;const t=held.get(e.pointerId);held.delete(e.pointerId);
-    if(tech===t){const other=[...held.values()].pop();setTech(other||"normal");}
-  };
-  window.addEventListener("pointerup",release);window.addEventListener("pointercancel",release);
-}
-
-/* ---------- カポ ---------- */
-function setCapo(v){
-  capo=Math.max(0,Math.min(9,v));
-  document.getElementById("capo-val").textContent=capo;
-  document.getElementById("capo-select").value=capo;
-  LS.set("guitar_capo",capo);
-  dampAll(.03);
-  initChordSidebar();updateStringLabels();requestDraw();
-}
-
-/* =========================================================
-   UI
-   ========================================================= */
-window.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("instrument-select").value=selectedInstrument;
-  document.getElementById("effect-select").value=selectedEffect;
-  document.getElementById("rhythm-pattern-select").value=selectedRhythm;
-  document.getElementById("tempo-input").value=currentBpm;
-  document.getElementById("bpm-val").textContent=currentBpm;
-  document.getElementById("tech-mode-select").value=techMode;
-  const capoSel=document.getElementById("capo-select");
-  for(let i=0;i<=9;i++){const o=document.createElement("option");o.value=i;o.textContent=i===0?"なし":`${i}フレット（+${i}半音）`;capoSel.appendChild(o);}
-  capoSel.value=capo;document.getElementById("capo-val").textContent=capo;
-
-  updateSpacingUI();applyCurrentOrientationSpacing();
-  initChordSidebar();initChordConfigGrid();updateStringLabels();
-
-  const setupModal=(btnId,modalId)=>document.getElementById(btnId).addEventListener("click",()=>{updateSpacingUI();document.getElementById(modalId).classList.add("active");});
-  setupModal("open-settings","settings-modal");setupModal("open-help","help-modal");
-  document.getElementById("settings-help-btn").addEventListener("click",()=>{document.getElementById("settings-modal").classList.remove("active");document.getElementById("help-modal").classList.add("active");});
-  document.getElementById("save-settings-btn").addEventListener("click",()=>{saveAllSettings();showToast("⚙️ 設定を保存しました！");document.getElementById("settings-modal").classList.remove("active");});
-  document.querySelectorAll(".modal-close-btn").forEach(b=>b.addEventListener("click",e=>document.getElementById(e.currentTarget.dataset.modal).classList.remove("active")));
-  document.querySelectorAll(".modal-overlay").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("active");}));
-
-  document.getElementById("instrument-select").addEventListener("change",e=>{selectedInstrument=e.target.value;LS.set("guitar_instrument",selectedInstrument);dampAll(.05);applyInstrument();drawBackground();requestDraw();});
-  document.getElementById("effect-select").addEventListener("change",e=>{selectedEffect=e.target.value;LS.set("guitar_effect",selectedEffect);applyEffect();});
-  capoSel.addEventListener("change",e=>setCapo(parseInt(e.target.value)));
-  document.getElementById("tech-mode-select").addEventListener("change",e=>{techMode=e.target.value;LS.set("guitar_tech_mode",techMode);setTech("normal");});
-  document.getElementById("rhythm-pattern-select").addEventListener("change",e=>{selectedRhythm=e.target.value;LS.set("guitar_rhythm",selectedRhythm);rhythmStep=0;});
-  document.getElementById("tempo-input").addEventListener("input",e=>{currentBpm=parseInt(e.target.value);document.getElementById("bpm-val").textContent=currentBpm;LS.set("guitar_bpm",currentBpm);});
-  document.getElementById("string-spacing-input").addEventListener("input",e=>{
-    const v=parseInt(e.target.value);document.getElementById("string-spacing-val").textContent=v;
-    setCurrentStringSpacing(v);applyStringSpacing(v);
-    LS.set(isLandscape()?"guitar_string_spacing_landscape":"guitar_string_spacing_portrait",v);
-  });
-  window.addEventListener("resize",()=>{applyCurrentOrientationSpacing();updateSpacingUI();});
-  document.getElementById("rhythm-toggle-btn").addEventListener("click",toggleRhythm);
-
-  document.getElementById("capo-down").addEventListener("pointerdown",e=>{e.preventDefault();setCapo(capo-1);});
-  document.getElementById("capo-up").addEventListener("pointerdown",e=>{e.preventDefault();setCapo(capo+1);});
-  document.querySelectorAll(".stroke-btn").forEach(b=>b.addEventListener("pointerdown",e=>{e.preventDefault();strum(b.dataset.dir);}));
-
-  initStringInteractions();initTechButtons();initCanvas();
-
-  const unlock=()=>initAudio();
-  window.addEventListener("touchstart",unlock,{once:true});window.addEventListener("mousedown",unlock,{once:true});
-});
-
-function applyStringSpacing(v){document.documentElement.style.setProperty("--string-height",`${v}px`);requestAnimationFrame(()=>{layoutCanvas();});}
-function applyCurrentOrientationSpacing(){applyStringSpacing(getCurrentStringSpacing());}
-function updateSpacingUI(){const v=getCurrentStringSpacing();document.getElementById("string-spacing-input").value=v;document.getElementById("string-spacing-val").textContent=v;}
-function saveAllSettings(){
-  LS.set("guitar_instrument",selectedInstrument);LS.set("guitar_effect",selectedEffect);LS.set("guitar_rhythm",selectedRhythm);
-  LS.set("guitar_bpm",currentBpm);LS.set("guitar_string_spacing_portrait",stringSpacingPortrait);LS.set("guitar_string_spacing_landscape",stringSpacingLandscape);
-  LS.set("guitar_chord_list",JSON.stringify(currentChordList));LS.set("guitar_capo",capo);LS.set("guitar_tech_mode",techMode);
-}
-function showToast(msg){const t=document.getElementById("toast-notification");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2000);}
-
-function initChordSidebar(){
-  const sb=document.getElementById("chord-sidebar");sb.innerHTML="";
-  currentChordList.forEach(name=>{
-    const btn=document.createElement("div");const empty=name==="NONE";
-    btn.className=`chord-btn ${name===selectedChord&&!empty?"active":""} ${empty?"empty":""}`;
-    btn.dataset.chord=name;
-    if(!empty){
-      btn.innerHTML=`<span>${name}</span>`+(capo?`<span class="sub">♪${soundingChordName(name)}</span>`:"");
-      btn.addEventListener("pointerdown",e=>{e.preventDefault();initAudio();selectChord(name);});
-    }
-    sb.appendChild(btn);
-  });
-}
-function initChordConfigGrid(){
-  const grid=document.getElementById("chord-config-grid");grid.innerHTML="";
-  currentChordList.forEach((name,idx)=>{
-    const slot=document.createElement("div");slot.className="chord-config-slot";
-    const label=document.createElement("label");label.textContent=`ボタン ${idx+1}`;
-    const sel=document.createElement("select");
-    const none=document.createElement("option");none.value="NONE";none.textContent="設定しない";sel.appendChild(none);
-    Object.keys(CHORD_VOICINGS).forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;sel.appendChild(o);});
-    sel.value=name;
-    sel.addEventListener("change",e=>{
-      currentChordList[idx]=e.target.value;LS.set("guitar_chord_list",JSON.stringify(currentChordList));
-      if(!currentChordList.includes(selectedChord)){selectedChord=currentChordList.find(c=>c!=="NONE")||"NONE";updateStringLabels();}
-      initChordSidebar();
-    });
-    slot.appendChild(label);slot.appendChild(sel);grid.appendChild(slot);
-  });
-}
-function selectChord(name){
-  if(name==="NONE")return;
-  const prevChord=selectedChord;selectedChord=name;
-  // 押さえ直した弦は止まり、同じ音の弦（開放弦など）は鳴り続ける
-  if(audioCtx&&prevChord!==name){const t=audioCtx.currentTime;for(const s in voices){if(soundingNote(s)!==voices[s].note)killVoice(s,t,.035);}}
-  document.querySelectorAll(".chord-btn").forEach(b=>b.classList.toggle("active",b.dataset.chord===name));
-  updateStringLabels();requestDraw();
-}
-function updateStringLabels(){
-  for(let s=1;s<=6;s++){
-    const n=selectedChord==="NONE"?X:soundingNote(s);
-    rowsEl[s].classList.toggle("muted",n===X);
-    document.getElementById(`note-${s}`).textContent=selectedChord==="NONE"?"-":(n===X?"×":n);
-  }
-}
-
-/* =========================================================
-   リズム（先読みスケジューラで揺れないタイミング）
-   ========================================================= */
-let isRhythmPlaying=false,schedTimer=null,rhythmStep=0,nextStepTime=0;
-function toggleRhythm(){
-  initAudio();const btn=document.getElementById("rhythm-toggle-btn");
-  if(isRhythmPlaying){stopRhythm();btn.textContent="リズム再生 (START)";btn.style.background="";}
-  else{startRhythm();btn.textContent="リズム停止 (STOP)";btn.style.background="var(--danger)";}
-}
-function startRhythm(){isRhythmPlaying=true;rhythmStep=0;nextStepTime=audioCtx.currentTime+.06;schedTimer=setInterval(scheduler,25);}
-function stopRhythm(){isRhythmPlaying=false;clearInterval(schedTimer);}
-function scheduler(){
-  const pat=RHYTHM_PATTERNS[selectedRhythm]||RHYTHM_PATTERNS["rock-8beat"];
-  const stepDur=60/currentBpm/(pat.steps===16?4:2);
-  while(nextStepTime<audioCtx.currentTime+.12){
-    rhythmStep%=pat.steps;
-    let t=nextStepTime;if(pat.swing&&rhythmStep%2===1)t+=stepDur*pat.swing;
-    const ev=pat.pattern[rhythmStep];
-    if(ev.k)playKick(t,pat.swing?.5:1);if(ev.s)playSnare(t);if(ev.h)playHat(t,.045,.16);
-    if(ev.o)playHat(t,.22,.12);if(ev.r)playRide(t);if(ev.f)playHat(t,.04,.12);if(ev.x)playRim(t);
-    nextStepTime+=stepDur;rhythmStep++;
-  }
-}
-function noiseSrc(){const s=audioCtx.createBufferSource();s.buffer=drumNoiseBuf;return s;}
-function playKick(t,lvl=1){
-  const c=audioCtx,o=c.createOscillator(),g=c.createGain();
-  o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);
-  g.gain.setValueAtTime(.95*lvl,t);g.gain.exponentialRampToValueAtTime(.001,t+.38);
-  o.connect(g);g.connect(drumBus);o.start(t);o.stop(t+.4);
-}
-function playSnare(t){
-  const c=audioCtx,n=noiseSrc(),f=c.createBiquadFilter(),g=c.createGain();
-  f.type="highpass";f.frequency.value=1200;g.gain.setValueAtTime(.38,t);g.gain.exponentialRampToValueAtTime(.001,t+.17);
-  n.connect(f);f.connect(g);g.connect(drumBus);n.start(t,Math.random()*.5,.2);
-  const o=c.createOscillator(),og=c.createGain();o.type="triangle";o.frequency.setValueAtTime(200,t);o.frequency.exponentialRampToValueAtTime(160,t+.08);
-  og.gain.setValueAtTime(.3,t);og.gain.exponentialRampToValueAtTime(.001,t+.09);o.connect(og);og.connect(drumBus);o.start(t);o.stop(t+.1);
-}
-function playHat(t,dur,lvl){
-  const c=audioCtx,n=noiseSrc(),f=c.createBiquadFilter(),g=c.createGain();
-  f.type="highpass";f.frequency.value=7000;g.gain.setValueAtTime(lvl,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
-  n.connect(f);f.connect(g);g.connect(drumBus);n.start(t,Math.random()*.5,dur+.02);
-}
-function playRide(t){
-  const c=audioCtx,n=noiseSrc(),f=c.createBiquadFilter(),g=c.createGain();
-  f.type="bandpass";f.frequency.value=6500;f.Q.value=.8;g.gain.setValueAtTime(.16,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);
-  n.connect(f);f.connect(g);g.connect(drumBus);n.start(t,Math.random()*.5,.42);
-}
-function playRim(t){
-  const c=audioCtx,o=c.createOscillator(),g=c.createGain();o.type="square";o.frequency.value=1700;
-  g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.03);o.connect(g);g.connect(drumBus);o.start(t);o.stop(t+.04);
-}
-
-/* =========================================================
-   ギター本体のグラフィック（Canvas）
-   ========================================================= */
-const box=document.getElementById("strings-container");
-const cv=document.getElementById("guitar-canvas"),g2=cv.getContext("2d");
-const bg=document.createElement("canvas"),bgx=bg.getContext("2d");
-let W=0,H=0,DPR=1,SY={},rowH=40,saddleX=0,tailX=0,fbEnd=0,fbTop=0,fbBot=0,pinXs=null;
-const vis={};for(let s=1;s<=6;s++)vis[s]={a:0,t0:0,tau:.6,f:20};
-let rafOn=false;
-
-function initCanvas(){
-  new ResizeObserver(()=>layoutCanvas()).observe(box);
-  layoutCanvas();
-}
-function layoutCanvas(){
-  const r=box.getBoundingClientRect();if(!r.width||!r.height)return;
-  DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=r.height;
-  cv.width=bg.width=Math.round(W*DPR);cv.height=bg.height=Math.round(H*DPR);
-  for(let s=1;s<=6;s++){const rr=rowsEl[s].getBoundingClientRect();SY[s]=(rr.top+rr.bottom)/2-r.top;}
-  rowH=Math.max(16,(SY[6]-SY[1])/5);
-  drawBackground();requestDraw();
-}
-// 再現性のある乱数（木目が毎回変わらないように）
-function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
-
-function woodGrain(ctx,x,y,w,h,base1,base2,grain,density,seed,alphaMax){
-  const r=rng(seed);
-  const gr=ctx.createLinearGradient(0,y,0,y+h);gr.addColorStop(0,base1);gr.addColorStop(.5,base2);gr.addColorStop(1,base1);
-  ctx.fillStyle=gr;ctx.fillRect(x,y,w,h);
-  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
-  for(let yy=y;yy<y+h;yy+=density*(.5+r())){
-    ctx.strokeStyle=grain.replace("A",(r()*alphaMax).toFixed(3));ctx.lineWidth=.4+r()*1.4;
-    const ph=r()*10,amp=r()*2.5,fq=.004+r()*.01;
-    ctx.beginPath();for(let xx=x;xx<=x+w;xx+=16){const yv=yy+Math.sin(xx*fq+ph)*amp;xx===x?ctx.moveTo(xx,yv):ctx.lineTo(xx,yv);}ctx.stroke();
-  }
-  ctx.restore();
-}
-function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
-
-function drawBackground(){
-  if(!W)return;
-  const ctx=bgx,look=PRESETS[selectedInstrument].look;
-  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
-  const pad=rowH*.6;fbTop=Math.max(2,SY[1]-pad);fbBot=Math.min(H-2,SY[6]+pad);
-  const cy=(SY[1]+SY[6])/2;
-
-  /* ---- ボディ表板 ---- */
-  if(look==="acoustic")woodGrain(ctx,0,0,W,H,"#e6c58b","#d7ad6c","rgba(140,90,35,A)",2.2,11,.28);
-  else if(look==="classic")woodGrain(ctx,0,0,W,H,"#c8935a","#b87d43","rgba(100,50,15,A)",2.4,23,.3);
-  else if(look==="electric"){
-    const sb=ctx.createRadialGradient(W*.62,cy,10,W*.62,cy,Math.max(W,H)*.75);
-    sb.addColorStop(0,"#f6c04a");sb.addColorStop(.35,"#e08a22");sb.addColorStop(.62,"#8a2f0b");sb.addColorStop(.85,"#2a0b03");sb.addColorStop(1,"#120401");
-    ctx.fillStyle=sb;ctx.fillRect(0,0,W,H);
-    ctx.globalAlpha=.35;woodGrain(ctx,0,0,W,H,"rgba(0,0,0,0)","rgba(0,0,0,0)","rgba(60,20,0,A)",3,37,.25);ctx.globalAlpha=1;
-  }else{
-    const bk=ctx.createLinearGradient(0,0,0,H);bk.addColorStop(0,"#1c1c1f");bk.addColorStop(.5,"#0b0b0c");bk.addColorStop(1,"#1a1a1d");
-    ctx.fillStyle=bk;ctx.fillRect(0,0,W,H);
-  }
-
-  /* ---- サウンドホール位置など ---- */
-  const holeR=Math.min((fbBot-fbTop)*.62,W*.17);
-  const holeX=W*.58;
-  if(look==="acoustic"||look==="classic")fbEnd=Math.max(W*.22,holeX-holeR*1.45);
-  else fbEnd=W*.34;
-
-  /* ---- ピックガード（アコギ：べっ甲柄） ---- */
-  if(look==="acoustic"){
-    ctx.save();ctx.beginPath();
-    ctx.ellipse(holeX+holeR*.75,cy+holeR*.95,holeR*1.15,holeR*.95,-.35,0,Math.PI*2);ctx.clip();
-    ctx.fillStyle="#4a1f0a";ctx.fillRect(0,0,W,H);
-    const r=rng(5);for(let i=0;i<120;i++){ctx.fillStyle=r()>.5?`rgba(20,6,0,${.3+r()*.5})`:`rgba(170,85,30,${.2+r()*.4})`;
-      ctx.beginPath();ctx.ellipse(holeX+(r()-.2)*holeR*2.4,cy+(r()-.1)*holeR*2.2,4+r()*14,2+r()*6,r()*3,0,Math.PI*2);ctx.fill();}
-    const gl=ctx.createLinearGradient(0,cy,0,H);gl.addColorStop(0,"rgba(255,255,255,.12)");gl.addColorStop(1,"rgba(255,255,255,0)");ctx.fillStyle=gl;ctx.fillRect(0,0,W,H);
-    ctx.restore();
-  }
-
-  /* ---- 指板（ローズウッド）とフレット ---- */
-  ctx.save();ctx.shadowColor="rgba(0,0,0,.55)";ctx.shadowBlur=10;ctx.shadowOffsetY=3;
-  ctx.fillStyle="#2c190e";ctx.fillRect(0,fbTop,fbEnd,fbBot-fbTop);ctx.restore();
-  woodGrain(ctx,0,fbTop,fbEnd,fbBot-fbTop,"#3b2416","#2a170c","rgba(0,0,0,A)",1.6,7,.45);
-  if(look==="acoustic"||look==="electric"){ctx.fillStyle="#efe6d0";ctx.fillRect(0,fbTop-1.5,fbEnd,2);ctx.fillRect(0,fbBot-.5,fbEnd,2);} // バインディング
-  // フレット（12フレット付近〜指板の端まで。間隔は 2^(-1/12) で狭くなる）
-  const lastFret=look==="classic"?19:20;
-  const s20=Math.max(22,rowH*.9);
-  const fx={};let x=fbEnd-s20*.55;
-  for(let k=lastFret;k>=1&&x>-60;k--){fx[k]=x;x-=s20*Math.pow(1/0.94387,lastFret-k);}
-  const markers=look==="classic"?[]:[3,5,7,9,15,17,19,21];
-  const dot=(dx,dy,r)=>{const gg=ctx.createRadialGradient(dx-r*.3,dy-r*.3,1,dx,dy,r);gg.addColorStop(0,"#ffffff");gg.addColorStop(.6,"#dfe7ea");gg.addColorStop(1,"#9fb0b8");ctx.fillStyle=gg;ctx.beginPath();ctx.arc(dx,dy,r,0,Math.PI*2);ctx.fill();};
-  for(const k in fx){
-    const kk=+k;
-    if(fx[kk-1]!==undefined){
-      const mid=(fx[kk-1]+fx[kk])/2,dr=Math.min(rowH*.22,9);
-      if(kk===12&&markers.length){dot(mid,(SY[2]+SY[3])/2,dr);dot(mid,(SY[4]+SY[5])/2,dr);}
-      else if(markers.includes(kk))dot(mid,cy,dr);
-    }
-    const fg=ctx.createLinearGradient(fx[kk]-2,0,fx[kk]+2,0);fg.addColorStop(0,"#6b7076");fg.addColorStop(.5,"#f4f6f8");fg.addColorStop(1,"#7d838a");
-    ctx.fillStyle="rgba(0,0,0,.45)";ctx.fillRect(fx[kk]+1.5,fbTop,2,fbBot-fbTop);
-    ctx.fillStyle=fg;ctx.fillRect(fx[kk]-1.5,fbTop,3,fbBot-fbTop);
-  }
-
-  /* ---- サウンドホール＋ロゼッタ ---- */
-  if(look==="acoustic"||look==="classic"){
-    const hr=holeR;
-    if(look==="acoustic"){
-      [[1.32,"#1b1208",3],[1.27,"#f1e8d2",2],[1.22,"#1b1208",1.5],[1.12,"#f1e8d2",1.5],[1.08,"#1b1208",3],[1.03,"#f1e8d2",1.5]]
-        .forEach(([k,c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.arc(holeX,cy,hr*k,0,Math.PI*2);ctx.stroke();});
-      // ヘリンボーン
-      const segs=90;for(let i=0;i<segs;i++){const a=i/segs*Math.PI*2;ctx.strokeStyle=i%2?"#2b1a0b":"#e9dcc0";ctx.lineWidth=2;
-        ctx.beginPath();ctx.moveTo(holeX+Math.cos(a)*hr*1.15,cy+Math.sin(a)*hr*1.15);ctx.lineTo(holeX+Math.cos(a+.05)*hr*1.2,cy+Math.sin(a+.05)*hr*1.2);ctx.stroke();}
-    }else{
-      // クラシックのモザイクロゼッタ
-      const r=rng(9),pal=["#1f5e3a","#b8321f","#efe3c4","#2a1a0c","#d79a2b"];
-      for(let ring=0;ring<4;ring++){const rk=1.05+ring*.075,segs=72;
-        for(let i=0;i<segs;i++){const a0=i/segs*Math.PI*2,a1=(i+1)/segs*Math.PI*2;ctx.strokeStyle=pal[(i+ring*2+((r()*1.4)|0))%pal.length];ctx.lineWidth=hr*.07;
-          ctx.beginPath();ctx.arc(holeX,cy,hr*rk,a0,a1);ctx.stroke();}}
-      [[1.0,"#2a1a0c",2],[1.33,"#2a1a0c",2.5]].forEach(([k,c,w])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.arc(holeX,cy,hr*k,0,Math.PI*2);ctx.stroke();});
-    }
-    const hg=ctx.createRadialGradient(holeX-hr*.2,cy-hr*.2,hr*.1,holeX,cy,hr);
-    hg.addColorStop(0,"#120a04");hg.addColorStop(.75,"#050302");hg.addColorStop(1,"#1a0f06");
-    ctx.fillStyle=hg;ctx.beginPath();ctx.arc(holeX,cy,hr,0,Math.PI*2);ctx.fill();
-    // 中に見える力木
-    ctx.save();ctx.beginPath();ctx.arc(holeX,cy,hr,0,Math.PI*2);ctx.clip();
-    ctx.fillStyle="rgba(150,105,55,.18)";ctx.fillRect(holeX-hr,cy+hr*.55,hr*2,hr*.12);ctx.restore();
-    ctx.strokeStyle="rgba(255,255,255,.12)";ctx.lineWidth=1;ctx.beginPath();ctx.arc(holeX,cy,hr-1,Math.PI*.9,Math.PI*1.6);ctx.stroke();
-  }
-
-  /* ---- エレキのピックアップ ---- */
-  if(look==="electric"||look==="metal"){
-    const pw=Math.max(26,rowH*1.15),ph=(fbBot-fbTop)+12;
-    [W*.5,W*.68].forEach((px,i)=>{
-      roundRect(ctx,px-pw/2-5,fbTop-11,pw+10,ph+10,6);ctx.fillStyle=look==="metal"?"#0d0d0d":"#e9dfc6";ctx.fill();
-      ctx.save();ctx.shadowColor="rgba(0,0,0,.6)";ctx.shadowBlur=6;
-      roundRect(ctx,px-pw/2,fbTop-6,pw,ph,4);ctx.fillStyle="#161616";ctx.fill();ctx.restore();
-      ctx.strokeStyle="#000";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px,fbTop-6);ctx.lineTo(px,fbTop-6+ph);ctx.stroke();
-      for(let s=1;s<=6;s++)[-.25,.25].forEach(o=>{const gx=px+o*pw,gr=Math.min(rowH*.13,4.5);
-        const pg=ctx.createRadialGradient(gx-1,SY[s]-1,.5,gx,SY[s],gr);pg.addColorStop(0,"#fff");pg.addColorStop(1,"#80868c");
-        ctx.fillStyle=pg;ctx.beginPath();ctx.arc(gx,SY[s],gr,0,Math.PI*2);ctx.fill();});
-    });
-  }
-
-  /* ---- ブリッジ ---- */
-  const bTop=fbTop-rowH*.35,bH=(fbBot-fbTop)+rowH*.7;
-  pinXs=null;
-  if(look==="acoustic"){
-    const bx=W*.86,bw=Math.max(34,W*.085);
-    ctx.save();ctx.shadowColor="rgba(0,0,0,.5)";ctx.shadowBlur=8;ctx.shadowOffsetX=2;
-    roundRect(ctx,bx,bTop,bw,bH,10);ctx.fillStyle="#24130a";ctx.fill();ctx.restore();
-    woodGrain(ctx,bx+3,bTop+3,bw-6,bH-6,"#2c180c","#1d0f06","rgba(0,0,0,A)",1.5,3,.4);
-    saddleX=bx+bw*.24;ctx.fillStyle="#f3ecd9";ctx.fillRect(saddleX-2,fbTop-4,4,fbBot-fbTop+8);
-    pinXs=bx+bw*.64;
-    for(let s=1;s<=6;s++){const r=Math.min(rowH*.16,7);
-      const pg=ctx.createRadialGradient(pinXs-r*.3,SY[s]-r*.3,1,pinXs,SY[s],r);pg.addColorStop(0,"#ffffff");pg.addColorStop(1,"#cfc6b2");
-      ctx.fillStyle=pg;ctx.beginPath();ctx.arc(pinXs,SY[s],r,0,Math.PI*2);ctx.fill();
-      ctx.fillStyle="#3aa6a0";ctx.beginPath();ctx.arc(pinXs,SY[s],r*.35,0,Math.PI*2);ctx.fill();}
-    tailX=pinXs;
-  }else if(look==="classic"){
-    const bx=W*.84,bw=Math.max(40,W*.11);
-    ctx.save();ctx.shadowColor="rgba(0,0,0,.5)";ctx.shadowBlur=8;ctx.shadowOffsetX=2;
-    roundRect(ctx,bx,bTop,bw,bH,4);ctx.fillStyle="#2b170b";ctx.fill();ctx.restore();
-    saddleX=bx+bw*.22;ctx.fillStyle="#f3ecd9";ctx.fillRect(saddleX-2,fbTop-4,4,fbBot-fbTop+8);
-    // タイブロック（モザイク）
-    const tb=bx+bw*.55;const r=rng(4);for(let yy=bTop+4;yy<bTop+bH-4;yy+=4){ctx.fillStyle=["#efe3c4","#1f5e3a","#b8321f","#2a1a0c"][(r()*4)|0];ctx.fillRect(tb,yy,bw*.3,3);}
-    tailX=tb+bw*.15;
-  }else{
-    // チューンOマチック＋テールピース
-    const bx=W*.84;saddleX=bx;
-    const ch=(x0,w)=>{const gg=ctx.createLinearGradient(x0,0,x0+w,0);gg.addColorStop(0,"#6b7076");gg.addColorStop(.4,"#f2f4f6");gg.addColorStop(1,"#8a9096");return gg;};
-    ctx.save();ctx.shadowColor="rgba(0,0,0,.6)";ctx.shadowBlur=6;
-    roundRect(ctx,bx-6,bTop+rowH*.1,12,bH-rowH*.2,4);ctx.fillStyle=ch(bx-6,12);ctx.fill();
-    const tx=W*.93;roundRect(ctx,tx-9,bTop,18,bH,8);ctx.fillStyle=ch(tx-9,18);ctx.fill();ctx.restore();
-    for(let s=1;s<=6;s++){ctx.fillStyle="#cfd4d9";ctx.fillRect(bx-4+(s%2)*1.5,SY[s]-rowH*.18,8,rowH*.36);}
-    tailX=W*.93;
-  }
-
-  /* ---- 全体の光沢とビネット ---- */
-  const gl=ctx.createLinearGradient(0,0,0,H);gl.addColorStop(0,"rgba(255,255,255,.10)");gl.addColorStop(.25,"rgba(255,255,255,0)");gl.addColorStop(.8,"rgba(0,0,0,0)");gl.addColorStop(1,"rgba(0,0,0,.25)");
-  ctx.fillStyle=gl;ctx.fillRect(0,0,W,H);
-  const vg=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,"rgba(0,0,0,0)");vg.addColorStop(1,"rgba(0,0,0,.45)");
-  ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
-}
-
-/* ---- 弦の見た目（巻き弦・プレーン弦・ナイロン） ---- */
-function stringStyle(s){
-  const look=PRESETS[selectedInstrument].look;
-  if(look==="acoustic")return s<=2?{w:[0,1.3,1.7][s],c:"#eceff2",hl:"#ffffff",wound:false}:{w:[0,0,0,2.3,2.9,3.5,4.2][s],c:"#c9975a",hl:"#f6d9a8",dark:"#7d5427",wound:true};
-  if(look==="classic")return s<=3?{w:[0,1.9,2.2,2.6][s],c:"rgba(245,236,214,.92)",hl:"rgba(255,255,255,.9)",wound:false,nylon:true}:{w:[0,0,0,0,3.0,3.5,4.1][s],c:"#d3d7dc",hl:"#ffffff",dark:"#80878f",wound:true};
-  return s<=3?{w:[0,1.2,1.6,2.1][s],c:"#e3e6ea",hl:"#ffffff",wound:false}:{w:[0,0,0,0,2.7,3.3,4.0][s],c:"#c4c9cf",hl:"#f4f6f8",dark:"#6f767e",wound:true};
-}
-function excite(s,vel,mode){
-  const now=performance.now()/1000;
-  vis[s].a=Math.min(rowH*.32,(2.5+vel*7)*(mode==="brush"?.35:mode==="dead"?.3:mode==="palm"?.55:1));
-  vis[s].t0=now;vis[s].tau=mode==="brush"?.05:mode==="dead"?.06:mode==="palm"?.14:.55+(6-s)*.04;
-  vis[s].f=14+(6-s)*2.5;
-  requestDraw();
-}
-function requestDraw(){if(!rafOn){rafOn=true;requestAnimationFrame(frame);}}
-function frame(){
-  if(!W){rafOn=false;return;}
-  const now=performance.now()/1000;let alive=false;
-  g2.setTransform(1,0,0,1,0,0);g2.drawImage(bg,0,0);g2.setTransform(DPR,0,0,DPR,0,0);
-
-  // 弦の影 → 弦本体
-  for(let s=6;s>=1;s--){
-    const v=vis[s],age=now-v.t0,amp=v.a*Math.exp(-age/v.tau);
-    if(amp>.15)alive=true;
-    drawString(s,amp>.15?amp:0,age,v.f);
-  }
-  drawCapo();drawHands();
-  if(alive)requestAnimationFrame(frame);else rafOn=false;
-}
-function stringPath(ctx,y,disp,x0,x1){
-  ctx.beginPath();ctx.moveTo(x0,y);
-  const seg=Math.max(10,(x1-x0)/40);
-  for(let x=x0+seg;x<=x1+.1;x+=seg){ctx.lineTo(x,y+disp*Math.sin(Math.PI*(x-x0)/(x1-x0)));}
-  ctx.lineTo(x1,y);
-}
-function drawString(s,amp,age,fv){
-  const ctx=g2,st=stringStyle(s),y=SY[s],x0=capo>0?60:0,x1=saddleX;
-  const muted=selectedChord==="NONE"||soundingNote(s)===X;
-  const disp=amp*Math.sin(age*fv*Math.PI*2);
-  ctx.lineCap="round";
-  // 影
-  ctx.globalAlpha=1;ctx.strokeStyle="rgba(0,0,0,.35)";ctx.lineWidth=st.w+1.5;
-  ctx.save();ctx.translate(1.5,st.w*.8+2);stringPath(ctx,y,disp*.6,x0,x1);ctx.stroke();ctx.restore();
-  // 振動の残像（モーションブラー）
-  if(amp>0){ctx.strokeStyle=st.c;ctx.lineWidth=st.w*.8;
-    [-1,-.55,.55,1].forEach(k=>{ctx.globalAlpha=.16;stringPath(ctx,y,amp*k,x0,x1);ctx.stroke();});ctx.globalAlpha=1;}
-  // 本体
-  ctx.globalAlpha=muted?.6:1;
-  ctx.strokeStyle=st.c;ctx.lineWidth=st.w;stringPath(ctx,y,disp,x0,x1);ctx.stroke();
-  if(st.wound){ctx.setLineDash([1.1,1.2]);ctx.strokeStyle=st.dark;ctx.lineWidth=st.w*.9;stringPath(ctx,y,disp,x0,x1);ctx.stroke();ctx.setLineDash([]);}
-  ctx.strokeStyle=st.hl;ctx.lineWidth=Math.max(.5,st.w*.3);ctx.globalAlpha*=st.nylon?.5:.75;
-  ctx.save();ctx.translate(0,-st.w*.22);stringPath(ctx,y,disp,x0,x1);ctx.stroke();ctx.restore();
-  ctx.globalAlpha=1;
-  // サドルの先（ピン/テールピースまで）
-  ctx.strokeStyle=st.c;ctx.lineWidth=st.w;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(tailX,y);ctx.stroke();
-}
-function drawCapo(){
-  if(!capo)return;const ctx=g2,x=40,w=20,top=fbTop-10,h=fbBot-fbTop+20;
-  ctx.save();ctx.shadowColor="rgba(0,0,0,.6)";ctx.shadowBlur=8;ctx.shadowOffsetX=3;
-  roundRect(ctx,x,top,w,h,6);ctx.fillStyle="#18181b";ctx.fill();ctx.restore();
-  const cg=ctx.createLinearGradient(x,0,x+w,0);cg.addColorStop(0,"#71717a");cg.addColorStop(.5,"#f4f4f5");cg.addColorStop(1,"#71717a");
-  roundRect(ctx,x-2,top-14,w+4,18,5);ctx.fillStyle=cg;ctx.fill();
-  ctx.save();ctx.translate(x+w/2,top+h/2);ctx.rotate(-Math.PI/2);ctx.fillStyle="#fbbf24";ctx.font="bold 11px system-ui";ctx.textAlign="center";ctx.textBaseline="middle";
-  ctx.fillText(`CAPO ${capo}`,0,0);ctx.restore();
-}
-function drawHands(){
-  const ctx=g2;
-  if(tech==="palm"){
-    // 右手の手のひらがブリッジ付近に乗っている
-    const cx=saddleX-rowH*.2,cy=(SY[1]+SY[6])/2,rx=rowH*1.1,ry=(fbBot-fbTop)*.62;
-    const hg=ctx.createRadialGradient(cx,cy,5,cx,cy,Math.max(rx,ry));
-    hg.addColorStop(0,"rgba(232,180,145,.75)");hg.addColorStop(.6,"rgba(214,160,125,.45)");hg.addColorStop(1,"rgba(214,160,125,0)");
-    ctx.fillStyle=hg;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();
-    label("PALM MUTE",cx,fbTop-2);
-  }else if(tech==="brush"){
-    // 左手の指が弦に軽く触れている
-    const n=4,startX=fbEnd*.18,gap=Math.max(26,fbEnd*.17),fw=Math.max(14,rowH*.42);
-    for(let i=0;i<n;i++){const fx=startX+i*gap,top=fbTop-rowH*.2,h=(fbBot-fbTop)*(.95-i*.07);
-      ctx.save();ctx.shadowColor="rgba(0,0,0,.45)";ctx.shadowBlur=10;ctx.shadowOffsetX=4;
-      const fg=ctx.createLinearGradient(fx-fw/2,0,fx+fw/2,0);fg.addColorStop(0,"rgba(196,140,105,.78)");fg.addColorStop(.5,"rgba(238,190,155,.82)");fg.addColorStop(1,"rgba(190,135,100,.78)");
-      roundRect(ctx,fx-fw/2,top,fw,h,fw/2);ctx.fillStyle=fg;ctx.fill();ctx.restore();
-      ctx.fillStyle="rgba(255,235,220,.55)";roundRect(ctx,fx-fw*.3,top+h-fw*1.1,fw*.6,fw*.8,fw*.3);ctx.fill();}
-    label("BRUSHING",startX+gap*1.5,fbTop-2);
-  }
-}
-function label(txt,x,y){
-  const ctx=g2;ctx.font="bold 11px system-ui";ctx.textAlign="center";ctx.textBaseline="bottom";
-  const w=ctx.measureText(txt).width+12;ctx.fillStyle="rgba(0,0,0,.6)";roundRect(ctx,x-w/2,Math.max(1,y-17),w,16,4);ctx.fill();
-  ctx.fillStyle="#fbbf24";ctx.fillText(txt,x,Math.max(1,y-17)+15);
-}
-</script>
 </body>
 </html>
