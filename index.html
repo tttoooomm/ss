@@ -3,256 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ゲーム</title>
+  <title>Index — リンクメニュー</title>
+
+  <!-- 明朝系フォント（オフラインでも下のフォールバックで崩れません） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #141210;
-      --panel: #1d1a17;
-      --line: rgba(201, 169, 110, 0.35);
-      --gold: #c9a96e;
-      --text: #e8e2d6;
-      --muted: #8f877a;
+      --bg:        #f3efe7;   /* 生成りの紙 */
+      --paper:     #faf8f3;
+      --ink:       #1c1b19;   /* 墨 */
+      --ink-soft:  #6b665d;
+      --line:      #d9d2c4;
+      --accent:    #8a6d3b;   /* 真鍮 */
+      --serif-en:  "Cormorant Garamond", "Times New Roman", serif;
+      --serif-ja:  "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", serif;
     }
+
     * { box-sizing: border-box; }
 
+    html, body { margin: 0; }
+
     body {
-      margin: 0;
       min-height: 100vh;
-      padding: 60px 20px 80px;
-      color: var(--text);
-      font-family: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
-      letter-spacing: 0.06em;
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.10), transparent 60%),
-        radial-gradient(ellipse at 50% 120%, rgba(0,0,0,0.8), transparent 60%),
-        var(--bg);
-      position: relative;
-    }
-    /* うっすら紙・革のようなザラつき */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.08;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      padding: clamp(48px, 9vw, 120px) 24px 80px;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: var(--serif-ja);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+      /* うっすら紙の粒子感 */
+      background-image:
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .05 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
     }
 
-    /* ===== ヘッダー ===== */
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ---------- ヘッダー ---------- */
     header {
       text-align: center;
-      margin-bottom: 50px;
+      margin-bottom: clamp(40px, 7vw, 72px);
     }
-    .guitar {
-      width: 90px;
-      height: auto;
-      filter: drop-shadow(0 10px 18px rgba(0,0,0,0.6));
-      margin-bottom: 18px;
-    }
+
     .eyebrow {
-      font-size: 0.7rem;
-      letter-spacing: 0.5em;
-      color: var(--gold);
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
       margin: 0 0 10px;
-      font-family: Georgia, "Times New Roman", serif;
     }
+
     h1 {
+      font-weight: 400;
+      font-size: clamp(1.6rem, 3.6vw, 2.2rem);
+      letter-spacing: 0.32em;
       margin: 0;
-      font-weight: normal;
-      font-size: 1.9rem;
-      letter-spacing: 0.4em;
-      padding-left: 0.4em; /* letter-spacing分のズレ補正 */
+      padding-left: 0.32em; /* letter-spacing分のズレ補正 */
     }
+
     .rule {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
-      margin-top: 18px;
-      color: var(--gold);
+      gap: 14px;
+      margin-top: 22px;
+      color: var(--accent);
     }
-    .rule::before, .rule::after {
+    .rule::before,
+    .rule::after {
       content: "";
-      width: 70px;
+      width: 64px;
       height: 1px;
-      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      background: var(--line);
     }
-    .rule span { font-size: 0.6rem; }
+    .rule span {
+      width: 5px;
+      height: 5px;
+      transform: rotate(45deg);
+      border: 1px solid currentColor;
+    }
 
-    /* ===== ボタン ===== */
-    .grid {
-      max-width: 640px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+    /* ---------- リスト ---------- */
+    .list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-top: 1px solid var(--ink);
     }
-    .card {
+
+    .list li { border-bottom: 1px solid var(--line); }
+
+    .item {
       position: relative;
-      display: block;
-      padding: 34px 20px 30px;
-      text-align: center;
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 8px 28px 4px;
+      color: inherit;
       text-decoration: none;
-      color: var(--text);
-      background:
-        linear-gradient(160deg, rgba(255,255,255,0.04), rgba(0,0,0,0.25)),
-        var(--panel);
+      transition: background-color .5s ease, padding .5s cubic-bezier(.2,.7,.2,1);
+    }
+
+    /* 下線がスッと伸びる */
+    .item::after {
+      content: "";
+      position: absolute;
+      left: 0; bottom: -1px;
+      height: 1px;
+      width: 100%;
+      background: var(--ink);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .6s cubic-bezier(.2,.7,.2,1);
+    }
+
+    .num {
+      font-family: var(--serif-en);
+      font-size: 1.05rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .title {
+      display: block;
+      font-size: clamp(1.02rem, 2.2vw, 1.18rem);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .desc {
+      display: block;
+      font-size: 0.84rem;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+    }
+
+    .arrow {
+      font-family: var(--serif-en);
+      font-size: 1.3rem;
+      color: var(--ink-soft);
+      transition: transform .5s cubic-bezier(.2,.7,.2,1), color .3s;
+    }
+
+    .tag {
+      display: inline-block;
+      margin-left: 10px;
+      padding: 1px 8px;
       border: 1px solid var(--line);
-      border-radius: 3px;
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.05) inset,
-        0 12px 24px rgba(0,0,0,0.45);
-      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-      overflow: hidden;
-    }
-    /* 内側の細い額縁 */
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(201,169,110,0.12);
-      pointer-events: none;
-      transition: border-color 0.35s ease;
-    }
-    /* ホバー時に光がすっと流れる */
-    .card::after {
-      content: "";
-      position: absolute;
-      top: 0; left: -120%;
-      width: 60%; height: 100%;
-      background: linear-gradient(105deg, transparent, rgba(201,169,110,0.12), transparent);
-      transition: left 0.7s ease;
-      pointer-events: none;
-    }
-    .card:hover {
-      transform: translateY(-4px);
-      border-color: var(--gold);
-      box-shadow:
-        0 1px 0 rgba(255,255,255,0.06) inset,
-        0 18px 34px rgba(0,0,0,0.6),
-        0 0 24px rgba(201,169,110,0.12);
-    }
-    .card:hover::before { border-color: rgba(201,169,110,0.35); }
-    .card:hover::after { left: 140%; }
-
-    .card-num {
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: var(--serif-en);
       font-style: italic;
-      font-size: 0.8rem;
-      color: var(--gold);
-      margin-bottom: 14px;
-    }
-    .card-title {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-    }
-    .card-desc {
-      font-size: 0.75rem;
-      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      color: var(--ink-soft);
+      vertical-align: middle;
     }
 
+    .item:hover,
+    .item:focus-visible {
+      background-color: var(--paper);
+      padding-left: 16px;
+      outline: none;
+    }
+    .item:hover::after,
+    .item:focus-visible::after { transform: scaleX(1); }
+    .item:hover .arrow,
+    .item:focus-visible .arrow {
+      transform: translateX(6px);
+      color: var(--ink);
+    }
+
+    /* ---------- フッター ---------- */
     footer {
+      margin-top: 56px;
       text-align: center;
-      margin-top: 60px;
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.4em;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: var(--serif-en);
+      font-style: italic;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      color: var(--ink-soft);
     }
 
-    @media (max-width: 480px) {
-      .grid { grid-template-columns: 1fr; }
-      h1 { font-size: 1.5rem; }
+    /* ---------- ふわっと登場 ---------- */
+    @media (prefers-reduced-motion: no-preference) {
+      header, .list li {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: rise .9s cubic-bezier(.2,.7,.2,1) forwards;
+      }
+      .list li:nth-child(1) { animation-delay: .15s; }
+      .list li:nth-child(2) { animation-delay: .25s; }
+      .list li:nth-child(3) { animation-delay: .35s; }
+      .list li:nth-child(4) { animation-delay: .45s; }
+      .list li:nth-child(5) { animation-delay: .55s; }
+      .list li:nth-child(6) { animation-delay: .65s; }
+    }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+
+    @media (max-width: 520px) {
+      .item { grid-template-columns: 40px 1fr auto; gap: 12px; padding: 22px 4px; }
+      .tag { display: none; }
     }
   </style>
 </head>
 <body>
+  <div class="wrap">
 
-  <header>
-    <!-- アコースティックギター -->
-    <svg class="guitar" viewBox="0 0 100 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <radialGradient id="wood" cx="45%" cy="40%" r="70%">
-          <stop offset="0%" stop-color="#d9a35f"/>
-          <stop offset="55%" stop-color="#a8662c"/>
-          <stop offset="100%" stop-color="#4a2510"/>
-        </radialGradient>
-        <linearGradient id="neck" x1="0" x2="1">
-          <stop offset="0%" stop-color="#2a1709"/>
-          <stop offset="50%" stop-color="#4a2a12"/>
-          <stop offset="100%" stop-color="#2a1709"/>
-        </linearGradient>
-      </defs>
-      <!-- ヘッド -->
-      <path d="M42 4 h16 l3 30 h-22 z" fill="#1e1006"/>
-      <g fill="#c9a96e">
-        <circle cx="38" cy="12" r="2.2"/><circle cx="38" cy="20" r="2.2"/><circle cx="38" cy="28" r="2.2"/>
-        <circle cx="62" cy="12" r="2.2"/><circle cx="62" cy="20" r="2.2"/><circle cx="62" cy="28" r="2.2"/>
-      </g>
-      <!-- ネック -->
-      <rect x="44" y="34" width="12" height="100" fill="url(#neck)"/>
-      <g stroke="#c9a96e" stroke-width="0.7" opacity="0.7">
-        <line x1="44" y1="46" x2="56" y2="46"/><line x1="44" y1="58" x2="56" y2="58"/>
-        <line x1="44" y1="69" x2="56" y2="69"/><line x1="44" y1="79" x2="56" y2="79"/>
-        <line x1="44" y1="88" x2="56" y2="88"/><line x1="44" y1="96" x2="56" y2="96"/>
-        <line x1="44" y1="103" x2="56" y2="103"/><line x1="44" y1="110" x2="56" y2="110"/>
-      </g>
-      <!-- ボディ -->
-      <path d="M50 120
-               C 28 120, 22 132, 26 148
-               C 29 158, 24 162, 16 172
-               C 4 188, 6 222, 26 238
-               C 38 248, 62 248, 74 238
-               C 94 222, 96 188, 84 172
-               C 76 162, 71 158, 74 148
-               C 78 132, 72 120, 50 120 Z"
-            fill="url(#wood)" stroke="#2a1306" stroke-width="2"/>
-      <!-- サウンドホール -->
-      <circle cx="50" cy="172" r="13" fill="#140a04"/>
-      <circle cx="50" cy="172" r="16" fill="none" stroke="#c9a96e" stroke-width="1" opacity="0.6"/>
-      <!-- ブリッジ -->
-      <rect x="36" y="206" width="28" height="6" rx="2" fill="#1e1006"/>
-      <!-- 弦 -->
-      <g stroke="#e8e2d6" stroke-width="0.4" opacity="0.85">
-        <line x1="46" y1="34" x2="46" y2="208"/><line x1="47.6" y1="34" x2="47.6" y2="208"/>
-        <line x1="49.2" y1="34" x2="49.2" y2="208"/><line x1="50.8" y1="34" x2="50.8" y2="208"/>
-        <line x1="52.4" y1="34" x2="52.4" y2="208"/><line x1="54" y1="34" x2="54" y2="208"/>
-      </g>
-    </svg>
+    <header>
+      <p class="eyebrow">Index</p>
+      <h1>リンクメニュー</h1>
+      <div class="rule"><span></span></div>
+    </header>
 
-    <p class="eyebrow">GAME SELECT</p>
-    <h1>ゲーム</h1>
-    <div class="rule"><span>◆</span></div>
-  </header>
+    <!-- 👇 hrefの中身を実際のファイル名（またはURL）に合わせる -->
+    <ul class="list">
+      <li>
+        <a class="item" href="イルカは羽ばたき空を超えその先を見た2.html">
+          <span class="num">01</span>
+          <span>
+            <span class="title">イルカは羽ばたき空を超えその先を見た2</span>
+            <span class="desc">イルカは羽ばたき魚を食べた</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+      </li>
 
-  <div class="grid">
-    <!-- 👇 href にゲームのファイル名、card-title にゲーム名を入れてね -->
-    <a class="card" href="#">
-      <div class="card-num">No. 01</div>
-      <div class="card-title">ゲーム名</div>
-      <div class="card-desc">説明文</div>
-    </a>
+      <li>
+        <a class="item" href="サルは羽ばたき空を飛ぶ.html">
+          <span class="num">02</span>
+          <span>
+            <span class="title">サルは羽ばたき空を飛ぶ</span>
+            <span class="desc">サルはバナナを食べてよだれがたれた</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+      </li>
 
-    <a class="card" href="#">
-      <div class="card-num">No. 02</div>
-      <div class="card-title">ゲーム名</div>
-      <div class="card-desc">説明文</div>
-    </a>
+      <li>
+        <a class="item" href="https://example.com/3">
+          <span class="num">03</span>
+          <span>
+            <span class="title">サイト C</span>
+            <span class="desc">サイトCの説明文</span>
+          </span>
+          <span class="arrow">→</span>
+        </a>
+      </li>
 
-    <a class="card" href="#">
-      <div class="card-num">No. 03</div>
-      <div class="card-title">ゲーム名</div>
-      <div class="card-desc">説明文</div>
-    </a>
+      <li>
+        <a class="item" href="https://example.com/4" target="_blank" rel="noopener noreferrer">
+          <span class="num">04</span>
+          <span>
+            <span class="title">サイト D<span class="tag">new tab</span></span>
+            <span class="desc">新しいタブで開きます</span>
+          </span>
+          <span class="arrow">↗</span>
+        </a>
+      </li>
+    </ul>
 
-    <a class="card" href="#">
-      <div class="card-num">No. 04</div>
-      <div class="card-title">ゲーム名</div>
-      <div class="card-desc">説明文</div>
-    </a>
+    <footer>— fin —</footer>
+
   </div>
-
-  <footer>— SELECT A GAME —</footer>
-
 </body>
 </html>
